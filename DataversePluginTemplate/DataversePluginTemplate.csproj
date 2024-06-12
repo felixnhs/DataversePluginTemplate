@@ -84,7 +84,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BasePlugin.cs" />
+    <Compile Include="CustomGenericPlugin.cs" />
+    <Compile Include="CustomPlugin.cs" />
+    <Compile Include="Model\PluginExecutionMode.cs" />
+    <Compile Include="Model\PluginMessages.cs" />
+    <Compile Include="Model\PluginStage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Queries\Select.cs" />
+    <Compile Include="Service\OrganizationServiceExtensionMethods.cs" />
+    <Compile Include="Service\PluginContext.cs" />
+    <Compile Include="Service\PluginTracingService.cs" />
+    <Compile Include="Service\ServiceProviderExtensionMethods.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

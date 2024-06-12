@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DataversePluginTemplate.Service
 {
-    internal class PluginTracingService : ITracingService
+    internal sealed class PluginTracingService : ITracingService
     {
         private readonly ITracingService _tracingService;
         private DateTime _previousTraceTime;

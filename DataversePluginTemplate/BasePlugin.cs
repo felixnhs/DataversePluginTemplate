@@ -2,6 +2,7 @@
 using DataversePluginTemplate.Service;
 using Microsoft.Xrm.Sdk;
 using System;
+using System.Runtime.Remoting.Contexts;
 using System.ServiceModel;
 
 namespace DataversePluginTemplate
@@ -40,7 +41,7 @@ namespace DataversePluginTemplate
 
             try
             {
-                switch(pluginContext.Context.MessageName)
+                switch (pluginContext.Context.MessageName)
                 {
                     case PluginMessages.CREATE:
                         HandleExecute<Entity>(pluginContext, OnCreate);
@@ -160,6 +161,7 @@ namespace DataversePluginTemplate
         }
 
         protected virtual void OnExecute(PluginContext context, T target) { }
+
 
         // Duplicate weil private in Base
         private void HandleExecute<T>(PluginContext pluginContext, Action<PluginContext, T> executeCallback)
