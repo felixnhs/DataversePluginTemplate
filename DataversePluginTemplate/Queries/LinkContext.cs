@@ -125,5 +125,4 @@ namespace DataversePluginTemplate.Queries
             return this;
         }
     }
-
 }

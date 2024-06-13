@@ -2,6 +2,7 @@
 using DataversePluginTemplate.Service;
 using Microsoft.Xrm.Sdk;
 using System;
+using System.Runtime.Remoting.Contexts;
 using System.ServiceModel;
 
 namespace DataversePluginTemplate

@@ -78,7 +78,6 @@ namespace DataversePluginTemplate.Queries
             return this;
         }
 
-
         /// <summary>
         /// Fügt der Abfrage Bedingungen mit dem angegebenen logischen Operator hinzu.
         /// </summary>
@@ -92,6 +91,7 @@ namespace DataversePluginTemplate.Queries
             var filterContext = new FilterContext(filterExpression);
             configureFilter(filterContext);
 
+            // TODO: Check ob Filterexpression jetzt aktuell durch Reference
             _expression.Criteria.AddFilter(filterExpression);
 
             return this;
@@ -125,6 +125,7 @@ namespace DataversePluginTemplate.Queries
             var linkContext = new LinkContext(linkEntity, entityName, fromColumn, toColumn);
             configureLink(linkContext);
 
+            // TODO: Check ob Filterexpression jetzt aktuell durch Reference
             _expression.LinkEntities.Add(linkEntity);
             return this;
         }
@@ -138,5 +139,4 @@ namespace DataversePluginTemplate.Queries
             return _orgService.RetrieveMultiple(_expression);
         }
     }
-
 }
