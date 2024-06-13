@@ -2,14 +2,23 @@
 
 namespace DataversePluginTemplate.Queries
 {
+    /// <summary>
+    /// Stellt Methoden bereit, um Bedingungsausdrücke zur Filterung in einer FilterExpression zu konfigurieren.
+    /// </summary>
     internal sealed class FilterContext
     {
         private readonly FilterExpression _filterExpression;
 
+        /// <summary>
+        /// Initialisiert eine neue Instanz des FilterContext mit der angegebenen FilterExpression.
+        /// </summary>
+        /// <param name="filterExpression">Die FilterExpression, die konfiguriert werden soll.</param>
         internal FilterContext(FilterExpression filterExpression)
         {
             _filterExpression = filterExpression;
         }
+
+        #region - Methoden für Condtions -
 
         internal FilterContext Equals(string columnName, object value) => HandleInternal(columnName, value, ConditionOperator.Equal);
         internal FilterContext NotEqual(string columnName, object value) => HandleInternal(columnName, value, ConditionOperator.NotEqual);
@@ -101,6 +110,16 @@ namespace DataversePluginTemplate.Queries
         internal FilterContext ContainValues(string columnName, object value) => HandleInternal(columnName, value, ConditionOperator.ContainValues);
         internal FilterContext DoesNotContainValues(string columnName, object value) => HandleInternal(columnName, value, ConditionOperator.DoesNotContainValues);
         internal FilterContext EqualRoleBusinessId(string columnName, object value) => HandleInternal(columnName, value, ConditionOperator.EqualRoleBusinessId);
+
+        #endregion
+
+        /// <summary>
+        /// Fügt eine Bedingung mit dem angegebenen Spaltennamen, Wert und Bedingungsoperator zur FilterExpression hinzu.
+        /// </summary>
+        /// <param name="columnName">Der Name der Spalte, auf die die Bedingung angewendet wird.</param>
+        /// <param name="value">Der Wert, mit dem die Bedingung verglichen wird.</param>
+        /// <param name="conditionOperator">Der Operator, der angibt, wie die Bedingung ausgewertet wird.</param>
+        /// <returns>Eine Instanz von FilterContext für method chaining.</returns>
         private FilterContext HandleInternal(string columnName, object value, ConditionOperator conditionOperator)
         {
             var condition = new ConditionExpression(columnName, ConditionOperator.Equal, value);
