@@ -1,4 +1,5 @@
-﻿using Microsoft.Xrm.Sdk;
+﻿using DataversePluginTemplate.Queries;
+using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Query;
 using System;
@@ -123,9 +124,9 @@ namespace DataversePluginTemplate.Service
         }
 
 
-        internal static void Select(this IOrganizationService orgService, string entityName)
+        internal static QueryContext Select(this IOrganizationService orgService, string entityName)
         {
-
+            return new QueryContext(orgService, entityName);
         }
     }
 }

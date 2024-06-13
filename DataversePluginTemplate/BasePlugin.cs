@@ -2,6 +2,7 @@
 using DataversePluginTemplate.Service;
 using Microsoft.Xrm.Sdk;
 using System;
+using System.Runtime.Remoting.Contexts;
 using System.ServiceModel;
 
 namespace DataversePluginTemplate
@@ -40,7 +41,7 @@ namespace DataversePluginTemplate
 
             try
             {
-                switch(pluginContext.Context.MessageName)
+                switch (pluginContext.ExecutionContext.MessageName)
                 {
                     case PluginMessages.CREATE:
                         HandleExecute<Entity>(pluginContext, OnCreate);
@@ -107,7 +108,7 @@ namespace DataversePluginTemplate
 
         private void HandleExecute<T>(PluginContext pluginContext, Action<PluginContext, T> executeCallback)
         {
-            if (pluginContext.Context.InputParameters.Contains(TARGET) && pluginContext.Context.InputParameters[TARGET] is T target)
+            if (pluginContext.ExecutionContext.InputParameters.Contains(TARGET) && pluginContext.ExecutionContext.InputParameters[TARGET] is T target)
                 executeCallback(pluginContext, target);
         }
     }
@@ -133,7 +134,7 @@ namespace DataversePluginTemplate
             {
                 HandleExecute<T>(pluginContext, OnExecute);
 
-                switch (pluginContext.Context.MessageName)
+                switch (pluginContext.ExecutionContext.MessageName)
                 {
                     case PluginMessages.CREATE:
                         HandleExecute<Entity>(pluginContext, OnCreate);
@@ -161,10 +162,11 @@ namespace DataversePluginTemplate
 
         protected virtual void OnExecute(PluginContext context, T target) { }
 
+
         // Duplicate weil private in Base
         private void HandleExecute<T>(PluginContext pluginContext, Action<PluginContext, T> executeCallback)
         {
-            if (pluginContext.Context.InputParameters.Contains(TARGET) && pluginContext.Context.InputParameters[TARGET] is T target)
+            if (pluginContext.ExecutionContext.InputParameters.Contains(TARGET) && pluginContext.ExecutionContext.InputParameters[TARGET] is T target)
                 executeCallback(pluginContext, target);
         }
     }

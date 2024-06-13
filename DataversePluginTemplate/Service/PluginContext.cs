@@ -10,7 +10,7 @@ namespace DataversePluginTemplate.Service
     {
         private readonly IServiceProvider _serviceProvider;
 
-        internal IPluginExecutionContext Context { get; }
+        internal IPluginExecutionContext ExecutionContext { get; }
         internal ITracingService TracingService { get; }
         internal IServiceEndpointNotificationService NotificationService { get; }
         internal ILogger Logger { get; }
@@ -31,15 +31,15 @@ namespace DataversePluginTemplate.Service
 
             _serviceProvider = serviceProvider;
 
-            Context = _serviceProvider.GetService<IPluginExecutionContext>();
+            ExecutionContext = _serviceProvider.GetService<IPluginExecutionContext>();
             NotificationService = _serviceProvider.GetService<IServiceEndpointNotificationService>();
             TracingService = _serviceProvider.GetService<ITracingService>();
             Logger = _serviceProvider.GetService<ILogger>();
-            PluginUserService = _serviceProvider.GetOrganizationService(Context.UserId);
-            InitiatinUserService = _serviceProvider.GetOrganizationService(Context.InitiatingUserId);
+            PluginUserService = _serviceProvider.GetOrganizationService(ExecutionContext.UserId);
+            InitiatinUserService = _serviceProvider.GetOrganizationService(ExecutionContext.InitiatingUserId);
 
-            PluginStage = (PluginStage)Context.Stage;
-            ExecutionMode = (PluginExecutionMode)Context.Mode;
+            PluginStage = (PluginStage)ExecutionContext.Stage;
+            ExecutionMode = (PluginExecutionMode)ExecutionContext.Mode;
         }
 
         internal PluginContext(IServiceProvider serviceProvider, Action<PluginContext> configureContext) : this(serviceProvider)
