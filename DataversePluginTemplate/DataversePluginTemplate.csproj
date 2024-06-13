@@ -90,7 +90,8 @@
     <Compile Include="Model\PluginMessages.cs" />
     <Compile Include="Model\PluginStage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Queries\Select.cs" />
+    <Compile Include="Queries\QueryContext.cs" />
+    <Compile Include="Queries\QueryExpressionExtensionMethods.cs" />
     <Compile Include="Service\OrganizationServiceExtensionMethods.cs" />
     <Compile Include="Service\PluginContext.cs" />
     <Compile Include="Service\PluginTracingService.cs" />
