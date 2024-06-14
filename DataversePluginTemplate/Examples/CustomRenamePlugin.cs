@@ -3,7 +3,7 @@ using DataversePluginTemplate.Service;
 using Microsoft.Xrm.Sdk;
 using System.Collections.Generic;
 
-namespace DataversePluginTemplate
+namespace DataversePluginTemplate.Examples
 {
     /// <summary>
     /// Eine spezifische Implementierung des <see cref="RenamePlugin"/>, die den Namen einer Entität auf einen benutzerdefinierten Namen festlegt.

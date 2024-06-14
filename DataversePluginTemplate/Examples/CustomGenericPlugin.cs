@@ -1,7 +1,7 @@
 ﻿using DataversePluginTemplate.Service;
 using Microsoft.Xrm.Sdk;
 
-namespace DataversePluginTemplate
+namespace DataversePluginTemplate.Examples
 {
     /// <summary>
     /// Beispiel-Plugin für benutzerdefinierte Logik in Dynamics 365.
