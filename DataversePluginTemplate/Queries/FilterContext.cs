@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xrm.Sdk.Query;
+using System;
 
 namespace DataversePluginTemplate.Queries
 {
