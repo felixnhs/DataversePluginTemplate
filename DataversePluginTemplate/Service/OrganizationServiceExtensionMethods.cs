@@ -28,6 +28,7 @@ internal static class OrganizationServiceExtensionMethods
     {
         var executeMultiRequest = new ExecuteMultipleRequest();
         executeMultiRequest.Settings = new ExecuteMultipleSettings();
+        executeMultiRequest.Requests = new OrganizationRequestCollection();
         configureRequest?.Invoke(executeMultiRequest);
 
         foreach (var request in requests)
