@@ -86,9 +86,11 @@
     <Compile Include="BasePlugin.cs" />
     <Compile Include="CustomGenericPlugin.cs" />
     <Compile Include="CustomPlugin.cs" />
+    <Compile Include="CustomRenamePlugin.cs" />
     <Compile Include="Model\PluginExecutionMode.cs" />
     <Compile Include="Model\PluginMessages.cs" />
     <Compile Include="Model\PluginStage.cs" />
+    <Compile Include="Prebuild\RenamePlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Queries\FilterContext.cs" />
     <Compile Include="Queries\LinkContext.cs" />
