@@ -1,6 +1,8 @@
 ﻿using DataversePluginTemplate.Service;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace DataversePluginTemplate.Examples
 {
@@ -67,6 +69,49 @@ namespace DataversePluginTemplate.Examples
                         });
                 })
                 .Execute();
+
+
+            /*
+             * Es können auch alle einträge einer Tabelle abgefragt werden...
+             */
+            EntityCollection passagierCollection = context.OrgService.Select("Passagier")
+                .AllColumns()
+                .Execute();
+
+            /*
+             * ... und mit der erstellten Klasse 'Passagier' ist Type-Safty gegeben.
+             * 
+             * Die Klasse erbt von BaseEntity...
+             */
+            var passagiere = passagierCollection.As<Passagier>();
+
+
+            /*
+             * ... wodurch die Abfragen auch sicherer gestaltet werden können.
+             * 
+             * Dabei ist wichtig, dass alle Eigenschaften und die Klasse selbst ein 
+             * LogicalName-Attribut haben, die den Logischen Namen des Attributs, bzw.
+             * der Entität, angeben.
+             */
+            IEnumerable<Passagier> passagierListe = context.OrgService.Select<Passagier>()
+                .Columns(passagier => new object[] { passagier.Nachname, passagier.Alter })
+                .Top(1)
+                .Conditions(LogicalOperator.And, (filter, passagier) =>
+                    filter.Equals(() => passagier.Nachname, "Müller"))
+                .Join<PassagiereImFlug>(passagier => passagier.Nachname, pif => pif.PassagierId, JoinOperator.Inner, passagiereImFlug =>
+                {
+                    passagiereImFlug
+                        .Columns(pif => new object[] { pif.FlugId })
+                        .Alias("Lieblings_Passagiere");
+                })
+                .Execute()
+                .As<Passagier>();
+
+            foreach (var passagier in passagierListe)
+            {
+                var alter = passagier.Get(p => p.Alter);
+                passagier.Set(p => p.Alter, 20);
+            }
         }
     }
 }

@@ -83,6 +83,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Examples\Passagier.cs" />
+    <Compile Include="Examples\PassagiereImFlug.cs" />
+    <Compile Include="Service\BaseEntity.cs" />
+    <Compile Include="Service\ExpressionExtensionMethods.cs" />
+    <Compile Include="Service\LogicalNameAttribute.cs" />
     <Compile Include="Service\BasePlugin.cs" />
     <Compile Include="Examples\CustomGenericPlugin.cs" />
     <Compile Include="Examples\CustomPlugin.cs" />
@@ -99,6 +104,7 @@
     <Compile Include="Service\OrganizationServiceExtensionMethods.cs" />
     <Compile Include="Service\PluginContext.cs" />
     <Compile Include="Service\PluginTracingService.cs" />
+    <Compile Include="Service\PropertyExtensionMethods.cs" />
     <Compile Include="Service\ServiceProviderExtensionMethods.cs" />
     <Compile Include="Service\TypeExtensionMethods.cs" />
   </ItemGroup>

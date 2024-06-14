@@ -1,7 +1,11 @@
-﻿using Microsoft.Xrm.Sdk;
+﻿using DataversePluginTemplate.Service;
+using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace DataversePluginTemplate.Queries
 {
@@ -90,8 +94,6 @@ namespace DataversePluginTemplate.Queries
 
             var filterContext = new FilterContext(filterExpression);
             configureFilter(filterContext);
-
-            // TODO: Check ob Filterexpression jetzt aktuell durch Reference
             _expression.Criteria.AddFilter(filterExpression);
 
             return this;
@@ -124,8 +126,6 @@ namespace DataversePluginTemplate.Queries
             var linkEntity = new LinkEntity(_expression.EntityName, entityName, fromColumn, toColumn, joinOperator);
             var linkContext = new LinkContext(linkEntity, entityName, fromColumn, toColumn);
             configureLink(linkContext);
-
-            // TODO: Check ob Filterexpression jetzt aktuell durch Reference
             _expression.LinkEntities.Add(linkEntity);
             return this;
         }
@@ -139,4 +139,151 @@ namespace DataversePluginTemplate.Queries
             return _orgService.RetrieveMultiple(_expression);
         }
     }
+
+    /// <summary>
+    /// Stellt den Kontext für die Definition und Ausführung von Abfragen gegen das CRM-System dar.
+    /// </summary>
+    /// <typeparam name="T">Der generische Typ, der von <see cref="BaseEntity{T}"/> abgeleitet ist.</typeparam>
+    internal sealed class QueryContext<T>
+        where T : BaseEntity<T>
+    {
+        // Der Dienst zum Ausführen von Abfragen gegen das CRM-System.
+        private readonly IOrganizationService _orgService;
+
+        // Der Ausdruck, der die Abfrage definiert, die gegen das CRM-System ausgeführt werden soll.
+        private readonly QueryExpression _expression;
+
+        /// <summary>
+        /// Initialisiert eine neue Instanz des QueryContext für die angegebene Entität mit dem angegebenen Organisationsservice.
+        /// </summary>
+        /// <param name="orgService">Der Organisationsservice zum Ausführen von CRM-Abfragen.</param>
+        internal QueryContext(IOrganizationService orgService)
+        {
+            _orgService = orgService;
+            _expression = new QueryExpression(typeof(T).GetLogicalName());
+        }
+
+        /// <summary>
+        /// Legt die zu selektierenden Spalten der Abfrage basierend auf dem angegebenen Property-Selektor fest.
+        /// </summary>
+        /// <param name="propertySelector">Lambda-Ausdruck, der die auszuwählenden Eigenschaften definiert.</param>
+        /// <returns>Die aktuelle Instanz der <see cref="QueryContext{T}"/> zur Verkettung weiterer Methodenaufrufe.</returns>
+        internal QueryContext<T> Columns(Expression<Func<T, object[]>> propertySelector)
+        {
+            if (propertySelector.Body is NewArrayExpression newArrayExpr)
+            {
+                var propertyInfos = new List<PropertyInfo>();
+                foreach (var expression in newArrayExpr.Expressions)
+                {
+                    if (expression is MemberExpression memberExpression)
+                    {
+                        var propertyInfo = memberExpression.GetPropertyInfo();
+                        propertyInfos.Add(propertyInfo);
+                    }
+                    else if (expression is UnaryExpression unaryExpression && unaryExpression.Operand is MemberExpression operandMember)
+                    {
+                        var propertyInfo = operandMember.GetPropertyInfo();
+                        propertyInfos.Add(propertyInfo);
+                    }
+                    else
+                    {
+                        throw new ArgumentException("Der Ausdruck muss auf eine Eigenschaft zugreifen.", nameof(propertySelector));
+                    }
+                }
+
+                _expression.ColumnSet.AddColumns(propertyInfos
+                    .Select(prop => prop.GetLogicalName())
+                    .Where(name => name != null)
+                    .ToArray());
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Legt fest, ob alle Spalten der Entität in die Abfrage aufgenommen werden sollen.
+        /// </summary>
+        /// <param name="allColumns">Ein boolescher Wert, der angibt, ob alle Spalten aufgenommen werden sollen. Standardwert ist <c>true</c>.</param>
+        /// <returns>Die aktuelle Instanz der <see cref="QueryContext{T}"/> zur Verkettung weiterer Methodenaufrufe.</returns>
+        internal QueryContext<T> AllColumns(bool allColumns = true)
+        {
+            _expression.ColumnSet.AllColumns = allColumns;
+            return this;
+        }
+
+        /// <summary>
+        /// Begrenzt die Anzahl der zurückzugebenden Ergebnisse der Abfrage.
+        /// </summary>
+        /// <param name="count">Die maximale Anzahl von Ergebnissen, die zurückgegeben werden sollen.</param>
+        /// <returns>Die aktuelle Instanz der <see cref="QueryContext{T}"/> zur Verkettung weiterer Methodenaufrufe.</returns>
+        internal QueryContext<T> Top(int count)
+        {
+            _expression.TopCount = count;
+            return this;
+        }
+
+        /// <summary>
+        /// Definiert die Bedingungen für die Abfrage mithilfe eines Filterausdrucks.
+        /// </summary>
+        /// <param name="logicalOperator">Der logische Operator, der die Bedingungen verknüpft.</param>
+        /// <param name="configureFilter">Aktion zum Konfigurieren des Filters mithilfe des Filterkontexts.</param>
+        /// <returns>Die aktuelle Instanz der <see cref="QueryContext{T}"/> zur Verkettung weiterer Methodenaufrufe.</returns>
+        internal QueryContext<T> Conditions(LogicalOperator logicalOperator, Action<FilterContext<T>, T> configureFilter)
+        {
+            var filterExpression = new FilterExpression(logicalOperator);
+
+            var filterContext = new FilterContext<T>(filterExpression);
+            configureFilter(filterContext, null); // TODO: Überprüfen, ob die Ausdrücke trotzdem funktionieren
+            _expression.Criteria.AddFilter(filterExpression);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Führt einen Inner Join mit einer anderen Entität basierend auf den angegebenen Spaltenauswahlen durch.
+        /// </summary>
+        /// <typeparam name="TOuter">Der Typ der anderen Entität, mit der gejoint werden soll.</typeparam>
+        /// <param name="fromColumnSelector">Lambda-Ausdruck, der die Spalte aus der Hauptentität auswählt.</param>
+        /// <param name="toColumnSelector">Lambda-Ausdruck, der die Spalte aus der anderen Entität auswählt.</param>
+        /// <param name="configureLink">Aktion zum Konfigurieren des Join-Kontexts.</param>
+        /// <returns>Die aktuelle Instanz der <see cref="QueryContext{T}"/> zur Verkettung weiterer Methodenaufrufe.</returns>
+        internal QueryContext<T> Join<TOuter>(Expression<Func<T, object>> fromColumnSelector, Expression<Func<TOuter, object>> toColumnSelector, Action<LinkContext<T, TOuter>> configureLink)
+            where TOuter : BaseEntity<TOuter>
+        {
+            return Join(fromColumnSelector, toColumnSelector, JoinOperator.Inner, configureLink);
+        }
+
+        /// <summary>
+        /// Führt einen Join mit einer anderen Entität basierend auf den angegebenen Spaltenauswahlen und dem Join-Operator durch.
+        /// </summary>
+        /// <typeparam name="TOuter">Der Typ der anderen Entität, mit der gejoint werden soll.</typeparam>
+        /// <param name="fromColumnSelector">Lambda-Ausdruck, der die Spalte aus der Hauptentität auswählt.</param>
+        /// <param name="toColumnSelector">Lambda-Ausdruck, der die Spalte aus der anderen Entität auswählt.</param>
+        /// <param name="joinOperator">Der Join-Operator, der den Join-Typ angibt (z. B. Inner, Left Outer).</param>
+        /// <param name="configureLink">Aktion zum Konfigurieren des Join-Kontexts.</param>
+        /// <returns>Die aktuelle Instanz der <see cref="QueryContext{T}"/> zur Verkettung weiterer Methodenaufrufe.</returns>
+        internal QueryContext<T> Join<TOuter>(Expression<Func<T, object>> fromColumnSelector, Expression<Func<TOuter, object>> toColumnSelector, JoinOperator joinOperator, Action<LinkContext<T, TOuter>> configureLink)
+            where TOuter : BaseEntity<TOuter>
+        {
+            var entityName = typeof(TOuter).GetLogicalName();
+            var fromColumn = fromColumnSelector.GetPropertyInfo().GetLogicalName();
+            var toColumn = toColumnSelector.GetPropertyInfo().GetLogicalName();
+
+            var linkEntity = new LinkEntity(_expression.EntityName, entityName, fromColumn, toColumn, joinOperator);
+            var linkContext = new LinkContext<T, TOuter>(linkEntity, entityName, fromColumn, toColumn);
+            configureLink(linkContext);
+            _expression.LinkEntities.Add(linkEntity);
+            return this;
+        }
+
+        /// <summary>
+        /// Führt die konfigurierte Abfrage aus und gibt die Ergebnisse als <see cref="EntityCollection"/> zurück.
+        /// </summary>
+        /// <returns>Die <see cref="EntityCollection"/>, die die Ergebnisse der Abfrage enthält.</returns>
+        internal EntityCollection Execute()
+        {
+            return _orgService.RetrieveMultiple(_expression);
+        }
+    }
+
 }
