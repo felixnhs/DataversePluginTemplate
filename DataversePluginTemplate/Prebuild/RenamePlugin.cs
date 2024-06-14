@@ -14,13 +14,13 @@ namespace DataversePluginTemplate.Prebuild
     {
         // Feld zur Speicherung des Namens der Spalte, die den Namen enthält.
         private readonly string _nameColumn;
-        
+
         /// <summary>
         /// Konstruktor, der den Plugin-Namen und den Namen der Spalte setzt.
         /// </summary>
         /// <param name="pluginName">Name des Plugins.</param>
         /// <param name="nameColumn">Name der Spalte, die den Namen enthält.</param>
-        public RenamePlugin(string pluginName, string nameColumn) : base(pluginName) 
+        public RenamePlugin(string pluginName, string nameColumn) : base(pluginName)
         {
             _nameColumn = nameColumn;
         }
@@ -64,7 +64,7 @@ namespace DataversePluginTemplate.Prebuild
         /// <param name="entity">Die Entität, die erstellt wird.</param>
         protected sealed override void OnCreate(PluginContext context, Entity entity)
         {
-            SetName(context, entity);   
+            SetName(context, entity);
         }
 
         /// <summary>

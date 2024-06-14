@@ -255,6 +255,18 @@ namespace DataversePluginTemplate.Service
         {
             return new QueryContext(orgService, entityName);
         }
+
+        /// <summary>
+        /// Erstellt und initialisiert einen Abfragekontext für den angegebenen Entitätstyp T.
+        /// </summary>
+        /// <typeparam name="T">Der Typ der Entität, für die die Abfrage erstellt werden soll.</typeparam>
+        /// <param name="orgService">Die IOrganizationService-Instanz, die für die Kommunikation mit dem CRM-System verwendet wird.</param>
+        /// <returns>Ein QueryContext-Objekt, das für die Erstellung und Ausführung von Abfragen verwendet werden kann.</returns>
+        internal static QueryContext<T> Select<T>(this IOrganizationService orgService)
+            where T : BaseEntity<T>
+        {
+            return new QueryContext<T>(orgService);
+        }
     }
 
 }

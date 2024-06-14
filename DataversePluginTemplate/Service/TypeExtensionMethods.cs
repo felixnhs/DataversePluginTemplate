@@ -30,6 +30,20 @@ namespace DataversePluginTemplate.Service
         /// <param name="type">Der zu überprüfende <see cref="Type"/>.</param>
         /// <returns><c>true</c>, wenn der <paramref name="type"/> entweder dem Typ <typeparamref name="T"/> entspricht oder ein Nullable-Typ ist, dessen zugrunde liegender Typ dem Typ <typeparamref name="T"/> entspricht; andernfalls <c>false</c>.</returns>
         internal static bool IsTypeOrNullable<T>(this Type type) => type == typeof(T) || Nullable.GetUnderlyingType(type) == typeof(T);
+
+        /// <summary>
+        /// Erhält den logischen Namen einer Entität basierend auf dem <see cref="LogicalNameAttribute"/>.
+        /// </summary>
+        /// <param name="type">Der Typ der Entität, für den der logische Name abgerufen werden soll.</param>
+        /// <returns>Der logische Name der Entität.</returns>
+        internal static string GetLogicalName(this Type type)
+        {
+            var logicalNameAttribute = (LogicalNameAttribute)Attribute.GetCustomAttribute(type, typeof(LogicalNameAttribute));
+            if (logicalNameAttribute == null)
+                throw new Exception("Type does not have a Logicalname attribute");
+
+            return logicalNameAttribute.Name;
+        }
     }
 
 }

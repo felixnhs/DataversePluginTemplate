@@ -1,5 +1,7 @@
 using Microsoft.Xrm.Sdk;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -62,6 +64,55 @@ namespace DataversePluginTemplate.Service
                 return null;
 
             return entity[logicalName] as TValue;
+        }
+
+        /// <summary>
+        /// Erstellt eine Instanz des Typs <typeparamref name="T"/> aus einer gegebenen <see cref="Entity"/>.
+        /// Der Typ <typeparamref name="T"/> muss einen Konstruktor haben, der eine <see cref="Entity"/> als Parameter akzeptiert.
+        /// </summary>
+        /// <typeparam name="T">Der Typ, der von <see cref="BaseEntity{T}"/> abgeleitet ist und eine <see cref="Entity"/> im Konstruktor akzeptiert.</typeparam>
+        /// <param name="entity">Die <see cref="Entity"/>, die zur Erstellung der Instanz von <typeparamref name="T"/> verwendet wird.</param>
+        /// <returns>Eine Instanz des Typs <typeparamref name="T"/>, die aus der <paramref name="entity"/> erstellt wurde.</returns>
+        /// <exception cref="InvalidOperationException">Wird ausgelöst, wenn der Typ <typeparamref name="T"/> keinen Konstruktor hat, der eine <see cref="Entity"/> als Parameter akzeptiert.</exception>
+        internal static T As<T>(this Entity entity)
+            where T : BaseEntity<T>
+        {
+            // Konstruktor suchen
+            var constructor = typeof(T).GetConstructor(new Type[] { typeof(Entity) });
+            if (constructor == null)
+            {
+                throw new InvalidOperationException($"Type {typeof(T)} does not have a constructor that takes an Entity parameter.");
+            }
+
+            // Konstruktor aufrufen und T dadurch erstellen
+            var target = (T)constructor.Invoke(new object[] { entity });
+            return target;
+        }
+
+        /// <summary>
+        /// Wandelt eine Auflistung von <see cref="Entity"/>-Objekten in eine Auflistung von Instanzen des Typs <typeparamref name="T"/> um.
+        /// Der Typ <typeparamref name="T"/> muss einen Konstruktor haben, der eine <see cref="Entity"/> als Parameter akzeptiert.
+        /// </summary>
+        /// <typeparam name="T">Der Typ, der von <see cref="BaseEntity{T}"/> abgeleitet ist und eine <see cref="Entity"/> im Konstruktor akzeptiert.</typeparam>
+        /// <param name="entities">Die Auflistung von <see cref="Entity"/>-Objekten, die in Instanzen des Typs <typeparamref name="T"/> umgewandelt werden sollen.</param>
+        /// <returns>Eine Auflistung von Instanzen des Typs <typeparamref name="T"/>, die aus den <paramref name="entities"/> erstellt wurden.</returns>
+        internal static IEnumerable<T> As<T>(this IEnumerable<Entity> entities)
+            where T : BaseEntity<T>
+        {
+            return entities.Select(entity => entity.As<T>());
+        }
+
+        /// <summary>
+        /// Wandelt eine <see cref="EntityCollection"/> in eine Auflistung von Instanzen des Typs <typeparamref name="T"/> um.
+        /// Der Typ <typeparamref name="T"/> muss einen Konstruktor haben, der eine <see cref="Entity"/> als Parameter akzeptiert.
+        /// </summary>
+        /// <typeparam name="T">Der Typ, der von <see cref="BaseEntity{T}"/> abgeleitet ist und eine <see cref="Entity"/> im Konstruktor akzeptiert.</typeparam>
+        /// <param name="entityCollection">Die <see cref="EntityCollection"/>, die in eine Auflistung von Instanzen des Typs <typeparamref name="T"/> umgewandelt werden soll.</param>
+        /// <returns>Eine Auflistung von Instanzen des Typs <typeparamref name="T"/>, die aus der <paramref name="entityCollection"/> erstellt wurden.</returns>
+        internal static IEnumerable<T> As<T>(this EntityCollection entityCollection)
+            where T : BaseEntity<T>
+        {
+            return entityCollection.Entities.As<T>();
         }
 
         /// <summary>
