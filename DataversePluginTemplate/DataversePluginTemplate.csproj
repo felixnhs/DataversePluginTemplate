@@ -83,10 +83,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BasePlugin.cs" />
-    <Compile Include="CustomGenericPlugin.cs" />
-    <Compile Include="CustomPlugin.cs" />
-    <Compile Include="CustomRenamePlugin.cs" />
+    <Compile Include="Service\BasePlugin.cs" />
+    <Compile Include="Examples\CustomGenericPlugin.cs" />
+    <Compile Include="Examples\CustomPlugin.cs" />
+    <Compile Include="Examples\CustomRenamePlugin.cs" />
     <Compile Include="Model\PluginExecutionMode.cs" />
     <Compile Include="Model\PluginMessages.cs" />
     <Compile Include="Model\PluginStage.cs" />
@@ -95,10 +95,12 @@
     <Compile Include="Queries\FilterContext.cs" />
     <Compile Include="Queries\LinkContext.cs" />
     <Compile Include="Queries\QueryContext.cs" />
+    <Compile Include="Service\EntityExtensionMethods.cs" />
     <Compile Include="Service\OrganizationServiceExtensionMethods.cs" />
     <Compile Include="Service\PluginContext.cs" />
     <Compile Include="Service\PluginTracingService.cs" />
     <Compile Include="Service\ServiceProviderExtensionMethods.cs" />
+    <Compile Include="Service\TypeExtensionMethods.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

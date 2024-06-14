@@ -1,11 +1,9 @@
 ﻿using DataversePluginTemplate.Model;
-using DataversePluginTemplate.Service;
 using Microsoft.Xrm.Sdk;
 using System;
-using System.Runtime.Remoting.Contexts;
 using System.ServiceModel;
 
-namespace DataversePluginTemplate
+namespace DataversePluginTemplate.Service
 {
     /// <summary>
     /// Abstrakte Basisklasse für Plugins, die grundlegende Funktionen und 
