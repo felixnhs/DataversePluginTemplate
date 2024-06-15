@@ -85,6 +85,8 @@
   <ItemGroup>
     <Compile Include="Examples\Passagier.cs" />
     <Compile Include="Examples\PassagiereImFlug.cs" />
+    <Compile Include="Prebuild\EntityPreprocessingPlugin.cs" />
+    <Compile Include="Prebuild\ValidationPlugin.cs" />
     <Compile Include="Service\BaseEntity.cs" />
     <Compile Include="Service\ExpressionExtensionMethods.cs" />
     <Compile Include="Service\LogicalNameAttribute.cs" />
@@ -104,6 +106,7 @@
     <Compile Include="Service\OrganizationServiceExtensionMethods.cs" />
     <Compile Include="Service\PluginContext.cs" />
     <Compile Include="Service\PluginTracingService.cs" />
+    <Compile Include="Service\PrimaryKeyAttribute.cs" />
     <Compile Include="Service\PropertyExtensionMethods.cs" />
     <Compile Include="Service\ServiceProviderExtensionMethods.cs" />
     <Compile Include="Service\TypeExtensionMethods.cs" />

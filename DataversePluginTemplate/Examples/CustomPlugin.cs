@@ -98,7 +98,7 @@ namespace DataversePluginTemplate.Examples
                 .Top(1)
                 .Conditions(LogicalOperator.And, (filter, passagier) =>
                     filter.Equals(() => passagier.Nachname, "Müller"))
-                .Join<PassagiereImFlug>(passagier => passagier.Nachname, pif => pif.PassagierId, JoinOperator.Inner, passagiereImFlug =>
+                .Join<PassagiereImFlug>(pif => pif.PassagierId, JoinOperator.Inner, passagiereImFlug =>
                 {
                     passagiereImFlug
                         .Columns(pif => new object[] { pif.FlugId })

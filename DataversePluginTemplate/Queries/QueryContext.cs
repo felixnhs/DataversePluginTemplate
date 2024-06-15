@@ -277,6 +277,41 @@ namespace DataversePluginTemplate.Queries
         }
 
         /// <summary>
+        /// Führt einen Inner Join mit einer anderen Entität basierend auf den angegebenen Spaltenauswahlen durch.
+        /// </summary>
+        /// <typeparam name="TOuter">Der Typ der anderen Entität, mit der gejoint werden soll.</typeparam>
+        /// <param name="toColumnSelector">Lambda-Ausdruck, der die Spalte aus der anderen Entität auswählt.</param>
+        /// <param name="configureLink">Aktion zum Konfigurieren des Join-Kontexts.</param>
+        /// <returns>Die aktuelle Instanz der <see cref="QueryContext{T}"/> zur Verkettung weiterer Methodenaufrufe.</returns>
+        internal QueryContext<T> Join<TOuter>(Expression<Func<TOuter, object>> toColumnSelector, Action<LinkContext<T, TOuter>> configureLink)
+            where TOuter : BaseEntity<TOuter>
+        {
+            return Join(toColumnSelector, JoinOperator.Inner, configureLink);
+        }
+
+        /// <summary>
+        /// Führt einen Join mit einer anderen Entität basierend auf den angegebenen Spaltenauswahlen und dem Join-Operator durch.
+        /// </summary>
+        /// <typeparam name="TOuter">Der Typ der anderen Entität, mit der gejoint werden soll.</typeparam>
+        /// <param name="toColumnSelector">Lambda-Ausdruck, der die Spalte aus der anderen Entität auswählt.</param>
+        /// <param name="joinOperator">Der Join-Operator, der den Join-Typ angibt (z. B. Inner, Left Outer).</param>
+        /// <param name="configureLink">Aktion zum Konfigurieren des Join-Kontexts.</param>
+        /// <returns>Die aktuelle Instanz der <see cref="QueryContext{T}"/> zur Verkettung weiterer Methodenaufrufe.</returns>
+        internal QueryContext<T> Join<TOuter>(Expression<Func<TOuter, object>> toColumnSelector, JoinOperator joinOperator, Action<LinkContext<T, TOuter>> configureLink)
+            where TOuter : BaseEntity<TOuter>
+        {
+            var entityName = typeof(TOuter).GetLogicalName();
+            var fromColumn = typeof(T).GetPrimaryKeyName();
+            var toColumn = toColumnSelector.GetPropertyInfo().GetLogicalName();
+
+            var linkEntity = new LinkEntity(_expression.EntityName, entityName, fromColumn, toColumn, joinOperator);
+            var linkContext = new LinkContext<T, TOuter>(linkEntity, entityName, fromColumn, toColumn);
+            configureLink(linkContext);
+            _expression.LinkEntities.Add(linkEntity);
+            return this;
+        }
+
+        /// <summary>
         /// Führt die konfigurierte Abfrage aus und gibt die Ergebnisse als <see cref="EntityCollection"/> zurück.
         /// </summary>
         /// <returns>Die <see cref="EntityCollection"/>, die die Ergebnisse der Abfrage enthält.</returns>

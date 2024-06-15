@@ -254,6 +254,41 @@ namespace DataversePluginTemplate.Queries
             _linkEntity.LinkEntities.Add(linkEntity);
             return this;
         }
+
+        /// <summary>
+        /// Führt einen Join mit einer anderen Entität basierend auf den angegebenen Spaltenauswahlen durch.
+        /// </summary>
+        /// <typeparam name="T">Der Typ der anderen Entität, mit der gejoint werden soll.</typeparam>
+        /// <param name="toColumnSelector">Lambda-Ausdruck, der die Spalte aus der anderen Entität auswählt.</param>
+        /// <param name="configureLink">Aktion zum Konfigurieren des Link-Kontexts.</param>
+        /// <returns>Die aktuelle Instanz des LinkContext zur Verkettung weiterer Methodenaufrufe.</returns>
+        internal LinkContext<TInner, TOuter> Join<T>(Expression<Func<T, object>> toColumnSelector, Action<LinkContext<T, TOuter>> configureLink)
+            where T : BaseEntity<T>
+        {
+            return Join(toColumnSelector, JoinOperator.Inner, configureLink);
+        }
+
+        /// <summary>
+        /// Führt einen Join mit einer anderen Entität basierend auf den angegebenen Spaltenauswahlen und dem Join-Operator durch.
+        /// </summary>
+        /// <typeparam name="T">Der Typ der anderen Entität, mit der gejoint werden soll.</typeparam>
+        /// <param name="toColumnSelector">Lambda-Ausdruck, der die Spalte aus der anderen Entität auswählt.</param>
+        /// <param name="joinOperator">Der Join-Operator, der den Join-Typ angibt (z. B. Inner, Left Outer).</param>
+        /// <param name="configureLink">Aktion zum Konfigurieren des Link-Kontexts.</param>
+        /// <returns>Die aktuelle Instanz des LinkContext zur Verkettung weiterer Methodenaufrufe.</returns>
+        internal LinkContext<TInner, TOuter> Join<T>(Expression<Func<T, object>> toColumnSelector, JoinOperator joinOperator, Action<LinkContext<T, TOuter>> configureLink)
+            where T : BaseEntity<T>
+        {
+            var entityName = typeof(T).GetLogicalName();
+            var fromColumn = typeof(TOuter).GetPrimaryKeyName();
+            var toColumn = toColumnSelector.GetPropertyInfo().GetLogicalName();
+
+            var linkEntity = new LinkEntity(_entityName, entityName, fromColumn, toColumn, joinOperator);
+            var linkContext = new LinkContext<T, TOuter>(linkEntity, entityName, fromColumn, toColumn);
+            configureLink(linkContext);
+            _linkEntity.LinkEntities.Add(linkEntity);
+            return this;
+        }
     }
 
 }
