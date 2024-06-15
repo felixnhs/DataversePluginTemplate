@@ -44,6 +44,26 @@ namespace DataversePluginTemplate.Service
 
             return logicalNameAttribute.Name;
         }
+
+        /// <summary>
+        /// Bestimmt den Namen des Primärschlüssels einer gegebenen Typenklasse.
+        /// Durchsucht die Eigenschaften des Typs und gibt den logischen Namen der
+        /// Eigenschaft zurück, die als Primärschlüssel definiert ist.
+        /// </summary>
+        /// <param name="type">Der Typ, dessen Primärschlüssel ermittelt werden soll.</param>
+        /// <returns>Der logische Name der Eigenschaft, die als Primärschlüssel definiert ist.</returns>
+        /// <exception cref="Exception">Wird ausgelöst, wenn der Typ keinen Primärschlüssel definiert hat.</exception>
+        internal static string GetPrimaryKeyName(this Type type)
+        {
+            foreach(var property in type.GetProperties())
+            {
+                if (property.IsPrimaryKey())
+                    return property.GetLogicalName();
+            }
+
+            throw new Exception($"Type {type.Name} has no primary key defined.");
+        }
+
     }
 
 }

@@ -10,7 +10,7 @@ namespace DataversePluginTemplate.Prebuild
     /// Abstrakte Klasse, die als Basis für Plugins dient, die Namen von Entitäten ändern.
     /// Erbt von <see cref="BasePlugin"/> und implementiert <see cref="IPlugin"/>.
     /// </summary>
-    public abstract class RenamePlugin : BasePlugin, IPlugin
+    public abstract class RenamePlugin : EntityPreprocessingPlugin, IPlugin
     {
         // Feld zur Speicherung des Namens der Spalte, die den Namen enthält.
         private readonly string _nameColumn;
@@ -57,46 +57,17 @@ namespace DataversePluginTemplate.Prebuild
         internal abstract IEnumerable<string> BuildName(PluginContext context, Entity entity);
 
         /// <summary>
-        /// Überschreibt die OnCreate-Methode, um den Namen der Entität bei der Erstellung festzulegen.
-        /// Diese Methode ist final und kann in abgeleiteten Klassen nicht überschrieben werden.
+        /// Diese Methode überschreibt die abstrakte <see cref="Process"/>-Methode, um spezifische Attribute der Entität zu verarbeiten.
+        /// Der Hauptzweck dieser Methode besteht darin, die Teile eines Namens zusammenzusetzen und als Attribut-Wert-Paar zurückzugeben.
         /// </summary>
-        /// <param name="context">Der Plugin-Kontext, der Ausführungsinformationen enthält.</param>
-        /// <param name="entity">Die Entität, die erstellt wird.</param>
-        protected sealed override void OnCreate(PluginContext context, Entity entity)
+        /// <param name="context">Der <see cref="PluginContext"/>, der Informationen über den aktuellen Ausführungszustand des Plugins enthält.</param>
+        /// <param name="entity">Die <see cref="Entity"/>, die verarbeitet wird. Diese Entität enthält die Daten, die für die Namensbildung verwendet werden.</param>
+        /// <returns>
+        /// Eine Aufzählung von Tupeln, die den Attributnamen und den zusammengesetzten Namen als Wert enthalten.
+        /// In diesem Fall wird nur ein Attribut-Wert-Paar zurückgegeben, das den neuen Namen der Entität repräsentiert.
+        /// </returns>
+        public sealed override IEnumerable<(string attribut, object value)> Process(PluginContext context, Entity entity)
         {
-            SetName(context, entity);
-        }
-
-        /// <summary>
-        /// Überschreibt die OnUpdate-Methode, um den Namen der Entität bei der Aktualisierung festzulegen.
-        /// Diese Methode ist final und kann in abgeleiteten Klassen nicht überschrieben werden.
-        /// </summary>
-        /// <param name="context">Der Plugin-Kontext, der Ausführungsinformationen enthält.</param>
-        /// <param name="entity">Die Entität, die aktualisiert wird.</param>
-        protected sealed override void OnUpdate(PluginContext context, Entity entity)
-        {
-            SetName(context, entity);
-        }
-
-        // Diese Methoden werden sealed, damit sie nicht weiter überschrieben werden können.
-        protected sealed override void OnDelete(PluginContext context, EntityReference entityReference) { }
-        protected sealed override void OnAssociate(PluginContext context, EntityReference entityReference) { }
-        protected sealed override void OnDisassociate(PluginContext context, EntityReference entityReference) { }
-
-        /// <summary>
-        /// Hilfsmethode zur Festlegung des Namens einer Entität.
-        /// Der Name wird nur festgelegt, wenn sich das Plugin in der Pre-Operation-Phase befindet.
-        /// Der neue Name wird basierend auf den von <see cref="BuildName"/> gelieferten Teilen zusammengesetzt.
-        /// </summary>
-        /// <param name="context">Der Plugin-Kontext, der Ausführungsinformationen enthält.</param>
-        /// <param name="entity">Die Entität, deren Name festgelegt werden soll.</param>
-        private void SetName(PluginContext context, Entity entity)
-        {
-            // Überprüfen, ob die aktuelle Phase die Pre-Operation ist.
-            // Falls nicht, wird die Ausführung abgebrochen.
-            if (context.ExecutionContext.Stage != (int)PluginStage.PreOperation)
-                return;
-
             // Abrufen der Teile des neuen Namens durch Aufruf der abstrakten Methode BuildName.
             var nameParts = BuildName(context, entity)
                 .GetEnumerator();
@@ -107,12 +78,7 @@ namespace DataversePluginTemplate.Prebuild
             while (nameParts.MoveNext())
                 stringBuilder.Append(nameParts.Current);
 
-            // Den zusammengestellten Namen der Entität hinzufügen
-            if (entity.Attributes.Contains(_nameColumn))
-                entity.Attributes[_nameColumn] = stringBuilder.ToString();
-
-            else
-                entity.Attributes.Add(_nameColumn, stringBuilder.ToString());
+            yield return (_nameColumn, stringBuilder.ToString());
         }
     }
 }
