@@ -31,8 +31,11 @@ namespace DataversePluginTemplate.Service
         /// <param name="value">Der neue Wert, der gesetzt werden soll.</param>
         public void Set<TProperty, TValue>(Expression<Func<TChild, TProperty>> propertyExpression, TValue value)
         {
-            propertyExpression.GetPropertyInfo()
-                .SetValue(this, value); // Setzt den Wert der Eigenschaft auf den angegebenen Wert.
+            var property = propertyExpression.GetPropertyInfo();
+            var logicalName = property.GetLogicalName();
+
+            _entity.Attributes[logicalName] = value;
+            property.SetValue(this, value);
         }
 
         /// <summary>
@@ -44,8 +47,9 @@ namespace DataversePluginTemplate.Service
         /// <returns>Der Wert der ausgewählten Eigenschaft.</returns>
         public TProperty Get<TProperty>(Expression<Func<TChild, TProperty>> propertyExpression)
         {
-            return (TProperty)propertyExpression.GetPropertyInfo()
-                .GetValue(this); // Ruft den Wert der Eigenschaft ab.
+            var property = propertyExpression.GetPropertyInfo();
+            var logicalName = property.GetLogicalName();
+            return _entity.GetAttributeValue<TProperty>(logicalName);
         }
 
         /// <summary>
