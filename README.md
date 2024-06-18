@@ -148,7 +148,6 @@ foreach (var passagier in passagiere)
     passagier.Set(p => p.Alter, alter + 1);
 }
 ```
-> TODO: Set-Methode anpassen für AttributeCollection
 
 Mit der `Set`-Methode wird nicht nur der Eigenschaft des *Passagiers* ein neuer Wert zugewiesen, sondern dieser auch in der *AttributeCollection* aktualisiert.
 
