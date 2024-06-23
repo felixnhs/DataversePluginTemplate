@@ -29,7 +29,7 @@ namespace DataversePluginTemplate.Service
         /// <typeparam name="TValue">Der Typ des neuen Werts.</typeparam>
         /// <param name="propertyExpression">Lambda-Ausdruck, der die Eigenschaft auswählt.</param>
         /// <param name="value">Der neue Wert, der gesetzt werden soll.</param>
-        public void Set<TProperty, TValue>(Expression<Func<TChild, TProperty>> propertyExpression, TValue value)
+        public void Set<TProperty>(Expression<Func<TChild, TProperty>> propertyExpression, TProperty value)
         {
             var property = propertyExpression.GetPropertyInfo();
             var logicalName = property.GetLogicalName();
