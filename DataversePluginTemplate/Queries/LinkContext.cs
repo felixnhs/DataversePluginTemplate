@@ -218,6 +218,18 @@ namespace DataversePluginTemplate.Queries
             return this;
         }
 
+        internal LinkContext<TInner, TOuter> Conditions(LogicalOperator logicalOperator, Action<FilterContext<TOuter>, TOuter> configureFilter)
+        {
+            var filterExpression = new FilterExpression(logicalOperator);
+
+            var filterContext = new FilterContext<TOuter>(filterExpression);
+            configureFilter(filterContext, null);
+
+            _linkEntity.LinkCriteria.AddFilter(filterExpression);
+
+            return this;
+        }
+
         /// <summary>
         /// Führt einen Join mit einer anderen Entität basierend auf den angegebenen Spaltenauswahlen durch.
         /// </summary>
@@ -226,7 +238,7 @@ namespace DataversePluginTemplate.Queries
         /// <param name="toColumnSelector">Lambda-Ausdruck, der die Spalte aus der anderen Entität auswählt.</param>
         /// <param name="configureLink">Aktion zum Konfigurieren des Link-Kontexts.</param>
         /// <returns>Die aktuelle Instanz des LinkContext zur Verkettung weiterer Methodenaufrufe.</returns>
-        internal LinkContext<TInner, TOuter> Join<T>(Expression<Func<TOuter, object>> fromColumnSelector, Expression<Func<T, object>> toColumnSelector, Action<LinkContext<T, TOuter>> configureLink)
+        internal LinkContext<TInner, TOuter> Join<T>(Expression<Func<TOuter, object>> fromColumnSelector, Expression<Func<T, object>> toColumnSelector, Action<LinkContext<TOuter, T>> configureLink)
             where T : BaseEntity<T>
         {
             return Join(fromColumnSelector, toColumnSelector, JoinOperator.Inner, configureLink);
@@ -241,7 +253,7 @@ namespace DataversePluginTemplate.Queries
         /// <param name="joinOperator">Der Join-Operator, der den Join-Typ angibt (z. B. Inner, Left Outer).</param>
         /// <param name="configureLink">Aktion zum Konfigurieren des Link-Kontexts.</param>
         /// <returns>Die aktuelle Instanz des LinkContext zur Verkettung weiterer Methodenaufrufe.</returns>
-        internal LinkContext<TInner, TOuter> Join<T>(Expression<Func<TOuter, object>> fromColumnSelector, Expression<Func<T, object>> toColumnSelector, JoinOperator joinOperator, Action<LinkContext<T, TOuter>> configureLink)
+        internal LinkContext<TInner, TOuter> Join<T>(Expression<Func<TOuter, object>> fromColumnSelector, Expression<Func<T, object>> toColumnSelector, JoinOperator joinOperator, Action<LinkContext<TOuter, T>> configureLink)
             where T : BaseEntity<T>
         {
             var entityName = typeof(T).GetLogicalName();
@@ -249,7 +261,7 @@ namespace DataversePluginTemplate.Queries
             var toColumn = toColumnSelector.GetPropertyInfo().GetLogicalName();
 
             var linkEntity = new LinkEntity(_entityName, entityName, fromColumn, toColumn, joinOperator);
-            var linkContext = new LinkContext<T, TOuter>(linkEntity, entityName, fromColumn, toColumn);
+            var linkContext = new LinkContext<TOuter, T>(linkEntity, entityName, fromColumn, toColumn);
             configureLink(linkContext);
             _linkEntity.LinkEntities.Add(linkEntity);
             return this;
@@ -262,7 +274,7 @@ namespace DataversePluginTemplate.Queries
         /// <param name="toColumnSelector">Lambda-Ausdruck, der die Spalte aus der anderen Entität auswählt.</param>
         /// <param name="configureLink">Aktion zum Konfigurieren des Link-Kontexts.</param>
         /// <returns>Die aktuelle Instanz des LinkContext zur Verkettung weiterer Methodenaufrufe.</returns>
-        internal LinkContext<TInner, TOuter> Join<T>(Expression<Func<T, object>> toColumnSelector, Action<LinkContext<T, TOuter>> configureLink)
+        internal LinkContext<TInner, TOuter> Join<T>(Expression<Func<T, object>> toColumnSelector, Action<LinkContext<TOuter, T>> configureLink)
             where T : BaseEntity<T>
         {
             return Join(toColumnSelector, JoinOperator.Inner, configureLink);
@@ -276,7 +288,7 @@ namespace DataversePluginTemplate.Queries
         /// <param name="joinOperator">Der Join-Operator, der den Join-Typ angibt (z. B. Inner, Left Outer).</param>
         /// <param name="configureLink">Aktion zum Konfigurieren des Link-Kontexts.</param>
         /// <returns>Die aktuelle Instanz des LinkContext zur Verkettung weiterer Methodenaufrufe.</returns>
-        internal LinkContext<TInner, TOuter> Join<T>(Expression<Func<T, object>> toColumnSelector, JoinOperator joinOperator, Action<LinkContext<T, TOuter>> configureLink)
+        internal LinkContext<TInner, TOuter> Join<T>(Expression<Func<T, object>> toColumnSelector, JoinOperator joinOperator, Action<LinkContext<TOuter, T>> configureLink)
             where T : BaseEntity<T>
         {
             var entityName = typeof(T).GetLogicalName();
@@ -284,7 +296,7 @@ namespace DataversePluginTemplate.Queries
             var toColumn = toColumnSelector.GetPropertyInfo().GetLogicalName();
 
             var linkEntity = new LinkEntity(_entityName, entityName, fromColumn, toColumn, joinOperator);
-            var linkContext = new LinkContext<T, TOuter>(linkEntity, entityName, fromColumn, toColumn);
+            var linkContext = new LinkContext<TOuter, T>(linkEntity, entityName, fromColumn, toColumn);
             configureLink(linkContext);
             _linkEntity.LinkEntities.Add(linkEntity);
             return this;

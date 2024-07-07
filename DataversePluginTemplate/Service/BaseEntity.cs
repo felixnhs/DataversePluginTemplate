@@ -12,14 +12,19 @@ namespace DataversePluginTemplate.Service
     {
         private readonly Entity _entity;
 
+        internal Entity Entity => _entity;
+        internal EntityReference Reference => _entity.ToEntityReference();
+
         /// <summary>
         /// Initialisiert eine neue Instanz der BaseEntity mit der angegebenen CRM-Entität.
         /// </summary>
         /// <param name="entity">Die CRM-Entität, die die Daten enthält.</param>
-        internal BaseEntity(Entity entity)
+        internal BaseEntity(Entity entity = null)
         {
-            _entity = entity;
-            Init(); // Initialisiert die Eigenschaften der Entität aus der CRM-Entität.
+            if (entity != null)
+                _entity = entity;
+            else
+                _entity = new Entity(typeof(TChild).GetLogicalName());
         }
 
         /// <summary>
@@ -29,7 +34,7 @@ namespace DataversePluginTemplate.Service
         /// <typeparam name="TValue">Der Typ des neuen Werts.</typeparam>
         /// <param name="propertyExpression">Lambda-Ausdruck, der die Eigenschaft auswählt.</param>
         /// <param name="value">Der neue Wert, der gesetzt werden soll.</param>
-        public void Set<TProperty>(Expression<Func<TChild, TProperty>> propertyExpression, TProperty value)
+        public void Set<TProperty, TValue>(Expression<Func<TChild, TProperty>> propertyExpression, TValue value)
         {
             var property = propertyExpression.GetPropertyInfo();
             var logicalName = property.GetLogicalName();
@@ -52,23 +57,28 @@ namespace DataversePluginTemplate.Service
             return _entity.GetAttributeValue<TProperty>(logicalName);
         }
 
-        /// <summary>
-        /// Initialisiert die Eigenschaften der Entität basierend auf den Attributen der CRM-Entität.
-        /// </summary>
-        private void Init()
+        public TProperty Get<TProperty, TValue>(Expression<Func<TChild, TProperty>> propertyExpression, Func<TValue, TProperty> valueSelector)
         {
-            var properties = typeof(TChild).GetProperties(); // Holt alle Eigenschaften des abgeleiteten Typs.
-            foreach (var property in properties)
-            {
-                var logicalName = property.GetLogicalName(); // Holt den logischen Namen der Eigenschaft.
-                if (string.IsNullOrWhiteSpace(logicalName))
-                    continue; // Überspringt Eigenschaften ohne logischen Namen.
+            var property = propertyExpression.GetPropertyInfo();
+            var logicalName = property.GetLogicalName();
+            return valueSelector(_entity.GetAttributeValue<TValue>(logicalName));
+        }
 
-                if (!_entity.Attributes.Contains(logicalName))
-                    continue; // Überspringt Eigenschaften, die nicht in den CRM-Attributen enthalten sind.
+        public TProperty? GetEnum<TProperty>(Expression<Func<TChild, TProperty?>> propertyExpression)
+            where TProperty : struct, Enum
+        {
+            var property = propertyExpression.GetPropertyInfo();
+            var logicalName = property.GetLogicalName();
+            var value = _entity.GetAttributeValue<OptionSetValue>(logicalName);
+            return value == null ? (TProperty?)null : (TProperty)Enum.ToObject(typeof(TProperty), value.Value);
+        }
 
-                property.SetValue(this, _entity.Attributes[logicalName]); // Setzt den Wert der Eigenschaft aus den CRM-Attributen.
-            }
+        public void SetEnum<TProperty>(Expression<Func<TChild, TProperty?>> propertyExpression, TProperty? value)
+            where TProperty : struct, Enum
+        {
+            var property = propertyExpression.GetPropertyInfo();
+            var logicalName = property.GetLogicalName();
+            property.SetValue(this, new OptionSetValue(Convert.ToInt32(value)));
         }
     }
 }

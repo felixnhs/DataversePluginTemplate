@@ -82,6 +82,12 @@ namespace DataversePluginTemplate.Queries
             return this;
         }
 
+        internal QueryContext Order(string column, OrderType orderType = OrderType.Ascending)
+        {
+            _expression.Orders.Add(new OrderExpression(column, orderType));
+            return this;
+        }
+
         /// <summary>
         /// Fügt der Abfrage Bedingungen mit dem angegebenen logischen Operator hinzu.
         /// </summary>
@@ -219,6 +225,13 @@ namespace DataversePluginTemplate.Queries
         internal QueryContext<T> Top(int count)
         {
             _expression.TopCount = count;
+            return this;
+        }
+
+        internal QueryContext<T> Order<TProperty>(Expression<Func<T, TProperty>> propertyExpression, OrderType orderType = OrderType.Ascending)
+        {
+            var column = propertyExpression.GetPropertyInfo().GetLogicalName();
+            _expression.Orders.Add(new OrderExpression(column, orderType));
             return this;
         }
 
