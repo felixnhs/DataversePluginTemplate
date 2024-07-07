@@ -17,7 +17,14 @@ namespace DataversePluginTemplate.Service
         /// <exception cref="Exception">Ausnahme, die ausgelöst wird, wenn der ReflectedType der Eigenschaft nicht mit TType übereinstimmt oder von diesem abgeleitet ist.</exception>
         internal static PropertyInfo GetPropertyInfo<TType, TProperty>(this Expression<Func<TType, TProperty>> propertySelector)
         {
-            if (!(propertySelector.Body is MemberExpression member))
+            MemberExpression member;
+            if (propertySelector.Body is UnaryExpression unaryExpression)
+                member = unaryExpression.Operand as MemberExpression;
+            
+            else
+                member = propertySelector.Body as MemberExpression;
+
+            if (member == null)
                 throw new ArgumentException("Expression is not a MemberExpression.");
 
             var propInfo = member.GetPropertyInfo();
@@ -30,10 +37,16 @@ namespace DataversePluginTemplate.Service
             return propInfo;
         }
 
-        // TODO: Debuggen ob das mit dem Parameter auch funktioniert
         internal static PropertyInfo GetPropertyInfo<TType, TProperty>(this Expression<Func<TProperty>> propertySelector)
         {
-            if (!(propertySelector.Body is MemberExpression member))
+            MemberExpression member;
+            if (propertySelector.Body is UnaryExpression unaryExpression)
+                member = unaryExpression.Operand as MemberExpression;
+
+            else
+                member = propertySelector.Body as MemberExpression;
+
+            if (member == null)
                 throw new ArgumentException("Expression is not a MemberExpression.");
 
             var propInfo = member.GetPropertyInfo();
