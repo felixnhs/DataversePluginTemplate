@@ -14,7 +14,7 @@ namespace DataversePluginTemplate.Service
         /// <exception cref="Exception">Wird ausgelöst, wenn die Eigenschaft nicht mit einem <see cref="LogicalNameAttribute"/> versehen ist.</exception>
         internal static string GetLogicalName(this PropertyInfo propertyInfo)
         {
-            var logicalNameAttribute = (LogicalNameAttribute)Attribute.GetCustomAttribute(propertyInfo, typeof(LogicalNameAttribute));
+            var logicalNameAttribute = propertyInfo.GetCustomAttribute<LogicalNameAttribute>();
             if (logicalNameAttribute == null)
                 throw new Exception("Property does not have Logicalname.");
 
