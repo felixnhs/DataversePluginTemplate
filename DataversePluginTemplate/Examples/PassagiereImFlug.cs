@@ -7,11 +7,19 @@ namespace DataversePluginTemplate.Examples
     internal class PassagiereImFlug : BaseEntity<PassagiereImFlug>
     {
         [LogicalName("passagierid")]
-        public string PassagierId { get; set; }
+        public string PassagierId
+        {
+            get => Get(p => p.PassagierId);
+            set => Set(p => p.PassagierId, value);
+        }
 
         [LogicalName("flugid")]
-        public string FlugId { get; set; }
+        public string FlugId 
+        {
+            get => Get(p => p.FlugId);
+            set => Set(p => p.FlugId, value);
+        }
 
-        public PassagiereImFlug(Entity entity) : base(entity) { }
+        public PassagiereImFlug(Entity entity = null) : base(entity) { }
     }
 }

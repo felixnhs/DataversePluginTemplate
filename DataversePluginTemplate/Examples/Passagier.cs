@@ -7,14 +7,26 @@ namespace DataversePluginTemplate.Examples
     internal class Passagier : BaseEntity<Passagier>
     {
         [LogicalName("vorname")]
-        public string Vorname { get; set; }
+        public string Vorname
+        {
+            get => Get(p => p.Vorname);
+            set => Set(p => p.Vorname, value);
+        }
 
         [LogicalName("nachname")]
-        public string Nachname { get; set; }
+        public string Nachname 
+        {
+            get => Get(p => p.Nachname);
+            set => Set(p => p.Nachname, value);
+        }
 
         [LogicalName("alter")]
-        public int Alter { get; set; }
+        public int Alter 
+        {
+            get => Get(p => p.Alter);
+            set => Set(p => p.Alter, value);
+        }
 
-        public Passagier(Entity entity) : base(entity) { }
+        public Passagier(Entity entity = null) : base(entity) { }
     }
 }
