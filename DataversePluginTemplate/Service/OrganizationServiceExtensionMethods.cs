@@ -183,10 +183,60 @@ namespace DataversePluginTemplate.Service
             EntityReference entityReference,
             params string[] columns)
         {
+            return orgService.Retrieve(entityReference, new ColumnSet(columns));
+        }
+
+        internal static Entity Retrieve(
+            this IOrganizationService orgService,
+            EntityReference entityReference,
+            ColumnSet columnSet)
+        {
             if (entityReference == null)
                 return null;
 
-            return orgService.Retrieve(entityReference.LogicalName, entityReference.Id, new ColumnSet(columns));
+            return orgService.Retrieve(entityReference.LogicalName, entityReference.Id, columnSet);
+        }
+
+        /// <summary>
+        /// Ruft eine Entität aus dem OrganizationService ab, indem eine Entitätsreferenz und eine Option zum Abrufen aller Spalten verwendet werden.
+        /// </summary>
+        /// <param name="orgService">Die IOrganizationService-Instanz.</param>
+        /// <param name="entityReference">Die Referenz zur abzurufenden Entität.</param>
+        /// <param name="allColumns">Gibt an, ob alle Spalten abgerufen werden sollen.</param>
+        /// <returns>Die abgerufene Entität oder null, wenn die Entitätsreferenz null ist.</returns>
+        internal static Entity Retrieve(
+            this IOrganizationService orgService,
+            EntityReference entityReference,
+            bool allColumns = true)
+        {
+            return orgService.Retrieve(entityReference, new ColumnSet(allColumns));
+        }
+
+        internal static T Retrieve<T>(
+            this IOrganizationService orgService,
+            EntityReference entityReference,
+            params string[] columns)
+            where T : BaseEntity<T>
+        {
+            return orgService.Retrieve(entityReference, columns).As<T>();
+        }
+
+        internal static T Retrieve<T>(
+            this IOrganizationService orgService,
+            EntityReference entityReference,
+            ColumnSet columnSet)
+            where T : BaseEntity<T>
+        {
+            return orgService.Retrieve(entityReference, columnSet).As<T>();
+        }
+
+        internal static T Retrieve<T>(
+            this IOrganizationService orgService,
+            EntityReference entityReference,
+            bool allColumns)
+            where T : BaseEntity<T>
+        {
+            return orgService.Retrieve(entityReference, allColumns).As<T>();
         }
 
         /// <summary>
@@ -204,26 +254,20 @@ namespace DataversePluginTemplate.Service
             if (entity == null)
                 return null;
 
-            return orgService.Retrieve(entity.ToEntityReference(), columns);
+            return orgService.Retrieve(entity, new ColumnSet(columns));
         }
 
-        /// <summary>
-        /// Ruft eine Entität aus dem OrganizationService ab, indem eine Entitätsreferenz und eine Option zum Abrufen aller Spalten verwendet werden.
-        /// </summary>
-        /// <param name="orgService">Die IOrganizationService-Instanz.</param>
-        /// <param name="entityReference">Die Referenz zur abzurufenden Entität.</param>
-        /// <param name="allColumns">Gibt an, ob alle Spalten abgerufen werden sollen.</param>
-        /// <returns>Die abgerufene Entität oder null, wenn die Entitätsreferenz null ist.</returns>
         internal static Entity Retrieve(
             this IOrganizationService orgService,
-            EntityReference entityReference,
-            bool allColumns = true)
+            Entity entity,
+            ColumnSet columnSet)
         {
-            if (entityReference == null)
+            if (entity == null)
                 return null;
 
-            return orgService.Retrieve(entityReference.LogicalName, entityReference.Id, new ColumnSet(allColumns));
+            return orgService.Retrieve(entity.ToEntityReference(), columnSet);
         }
+
 
         /// <summary>
         /// Ruft eine Entität aus dem OrganizationService ab, indem eine Entität und eine Option zum Abrufen aller Spalten verwendet werden.
@@ -240,7 +284,42 @@ namespace DataversePluginTemplate.Service
             if (entity == null)
                 return null;
 
-            return orgService.Retrieve(entity.ToEntityReference(), allColumns);
+            return orgService.Retrieve(entity, new ColumnSet(allColumns));
+        }
+
+        internal static T Retrieve<T>(
+            this IOrganizationService orgService,
+            Entity entity,
+            params string[] columns)
+            where T : BaseEntity<T>
+        {
+            return orgService.Retrieve(entity, columns).As<T>();
+        }
+
+        internal static T Retrieve<T>(
+            this IOrganizationService orgService,
+            Entity entity,
+            ColumnSet columnSet)
+            where T : BaseEntity<T>
+        {
+            return orgService.Retrieve(entity, columnSet).As<T>();
+        }
+
+
+        /// <summary>
+        /// Ruft eine Entität aus dem OrganizationService ab, indem eine Entität und eine Option zum Abrufen aller Spalten verwendet werden.
+        /// </summary>
+        /// <param name="orgService">Die IOrganizationService-Instanz.</param>
+        /// <param name="entity">Die Entität, die abgerufen werden soll.</param>
+        /// <param name="allColumns">Gibt an, ob alle Spalten abgerufen werden sollen.</param>
+        /// <returns>Die abgerufene Entität oder null, wenn die Entität null ist.</returns>
+        internal static T Retrieve<T>(
+            this IOrganizationService orgService,
+            Entity entity,
+            bool allColumns = true)
+            where T : BaseEntity<T>
+        {
+            return orgService.Retrieve(entity, allColumns).As<T>();
         }
 
         /// <summary>
