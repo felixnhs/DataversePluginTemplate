@@ -1,6 +1,9 @@
 ﻿using DataversePluginTemplate.Model;
 using Microsoft.Xrm.Sdk;
 using System;
+using System.Diagnostics;
+using System.IdentityModel.Metadata;
+using System.Linq;
 using System.ServiceModel;
 
 namespace DataversePluginTemplate.Service
@@ -12,10 +15,7 @@ namespace DataversePluginTemplate.Service
     public abstract class BasePlugin : IPlugin
     {
         // Eine konstante Zeichenfolge, die als Schlüssel für das Zielobjekt in den Eingabeparametern verwendet wird.
-        private const string TARGET = "Target";
-
-        // Der Name des Plugins. Dieser wird von abgeleiteten Klassen verwendet.
-        protected readonly string _PluginName;
+        protected const string TARGET = "Target";
 
         // Unsichere Konfiguration, die von Plugins genutzt werden kann.
         protected string UnsecureConfiguration { get; }
@@ -24,37 +24,27 @@ namespace DataversePluginTemplate.Service
         protected string SecureConfiguration { get; }
 
         /// <summary>
-        /// Standardkonstruktor, der den Plugin-Namen auf den Standardwert "BasePlugin" setzt.
+        /// Standardkonstruktor
         /// </summary>
-        public BasePlugin() : this(nameof(BasePlugin)) { }
+        public BasePlugin() { }
+
 
         /// <summary>
-        /// Konstruktor, der den Plugin-Namen auf den angegebenen Wert setzt.
+        /// Konstruktor, der und die unsichere Konfiguration setzt.
         /// </summary>
-        /// <param name="pluginName">Der Name des Plugins.</param>
-        public BasePlugin(string pluginName)
-        {
-            _PluginName = pluginName;
-        }
-
-        /// <summary>
-        /// Konstruktor, der den Plugin-Namen und die unsichere Konfiguration setzt.
-        /// </summary>
-        /// <param name="pluginName">Der Name des Plugins.</param>
         /// <param name="unsecureConfiguration">Die unsichere Konfiguration des Plugins.</param>
-        public BasePlugin(string pluginName, string unsecureConfiguration) : this(pluginName)
+        public BasePlugin(string unsecureConfiguration) : this()
         {
             UnsecureConfiguration = unsecureConfiguration;
         }
 
         /// <summary>
-        /// Konstruktor, der den Plugin-Namen, die unsichere und die sichere Konfiguration setzt.
+        /// Konstruktor, der die unsichere und die sichere Konfiguration setzt.
         /// </summary>
-        /// <param name="pluginName">Der Name des Plugins.</param>
         /// <param name="unsecureConfiguration">Die unsichere Konfiguration des Plugins.</param>
         /// <param name="secureConfiguration">Die sichere Konfiguration des Plugins.</param>
-        public BasePlugin(string pluginName, string unsecureConfiguration, string secureConfiguration)
-            : this(pluginName, unsecureConfiguration)
+        public BasePlugin(string unsecureConfiguration, string secureConfiguration)
+            : this(unsecureConfiguration)
         {
             SecureConfiguration = secureConfiguration;
         }
@@ -69,6 +59,8 @@ namespace DataversePluginTemplate.Service
 
             try
             {
+                OnExecute(pluginContext);
+
                 switch (pluginContext.ExecutionContext.MessageName)
                 {
                     case PluginMessages.CREATE:
@@ -86,14 +78,32 @@ namespace DataversePluginTemplate.Service
                     case PluginMessages.DISASSOCIATE:
                         HandleExecute<EntityReference>(pluginContext, OnDisassociate);
                         break;
+                    default:
+                        OnCustomMessage(pluginContext);
+                        break;
                 }
+            }
+            catch (APIException apiException)
+            {
+                DebugLog(pluginContext, $"An {nameof(APIException)} was thrown. {apiException.StackTrace}");
+                Log(pluginContext.TracingService, $"{(int)apiException.StatusCode}: {apiException.Message}");
+                throw new InvalidPluginExecutionException(apiException.Message, apiException.StatusCode);
             }
             catch (FaultException<OrganizationServiceFault> orgServiceFault)
             {
-                string message = $"[{_PluginName}] ERROR: {orgServiceFault}";
+                DebugLog(pluginContext, $"A {nameof(FaultException)} was thrown. {orgServiceFault.StackTrace}");
+                string message = $"[ERROR]: {orgServiceFault}";
                 throw new InvalidPluginExecutionException(message, orgServiceFault);
             }
+            catch (Exception ex)
+            {
+                DebugLog(pluginContext, $"A {ex.GetType().Name} was thrown. {ex.StackTrace}");
+                string message = $"[ERROR]: {ex.Message}";
+                throw new InvalidPluginExecutionException(message, ex);
+            }
         }
+
+        protected virtual void OnExecute(PluginContext context) { }
 
         /// <summary>
         /// Virtuelle Methode, die bei der Erstellung eines Entität ausgeführt wird.
@@ -135,6 +145,8 @@ namespace DataversePluginTemplate.Service
         /// <param name="entityReference">Die Referenz auf die zu entfernende Zuordnung.</param>
         protected virtual void OnDisassociate(PluginContext context, EntityReference entityReference) { }
 
+        protected virtual void OnCustomMessage(PluginContext context) { }
+
         /// <summary>
         /// Protokolliert eine Nachricht mithilfe des angegebenen Tracing-Dienstes.
         /// </summary>
@@ -142,7 +154,7 @@ namespace DataversePluginTemplate.Service
         /// <param name="message">Die zu protokollierende Nachricht.</param>
         protected void Log(ITracingService tracingService, string message)
         {
-            tracingService.Trace($"[{_PluginName}] {message}");
+            tracingService.Trace(message);
         }
 
         /// <summary>
@@ -163,7 +175,7 @@ namespace DataversePluginTemplate.Service
         /// <param name="args">Die Argumente für die Nachricht.</param>
         protected void Log(ITracingService tracingService, string message, params string[] args)
         {
-            tracingService.Trace($"[{_PluginName}] {message}" + "{0}", args); // TODO: Debuggen
+            tracingService.Trace(message + "{0}", args);
         }
 
         /// <summary>
@@ -197,6 +209,41 @@ namespace DataversePluginTemplate.Service
             Log(context.TracingService, message, args);
         }
 
+
+        protected void DebugLog(PluginContext context, string message)
+        {
+            context.TracingService.DebugLog(message);
+        }
+
+
+
+        protected void DebugLogEntity(PluginContext context, Entity entity)
+        {
+#if DEBUG
+            context.TracingService.DebugLogEntity(entity);
+#endif
+        }
+
+        protected void LogTrace(PluginContext context)
+        {
+#if DEBUG
+            var stackTrace = new StackTrace(1);
+            context.TracingService.Trace($"[TRACE]: {stackTrace}");
+#endif
+        }
+
+        protected void DebugLogSeparator(PluginContext context, string title = "")
+        {
+            context.TracingService.DebugLogSeparator(title);
+        }
+
+        protected void DebugLogSection(PluginContext context)
+        {
+            context.TracingService.DebugLogSection();
+        }
+
+        
+
         /// <summary>
         /// Führt die angegebene Aktion für das Zielobjekt im Plugin-Kontext aus.
         /// </summary>
@@ -219,35 +266,24 @@ namespace DataversePluginTemplate.Service
     /// <typeparam name="T">Der Typ des Zielobjekts, mit dem das Plugin arbeitet.</typeparam>
     public abstract class BasePlugin<T> : BasePlugin, IPlugin
     {
-        // Eine konstante Zeichenfolge, die als Schlüssel für das Zielobjekt in den Eingabeparametern verwendet wird.
-        private const string TARGET = "Target";
-
         /// <summary>
-        /// Standardkonstruktor, der den Plugin-Namen auf den Standardwert "BasePlugin<T>" setzt.
+        /// Standardkonstruktor
         /// </summary>
-        public BasePlugin() : this(nameof(BasePlugin<T>)) { }
-
-        /// <summary>
-        /// Konstruktor, der den Plugin-Namen auf den angegebenen Wert setzt.
-        /// </summary>
-        /// <param name="pluginName">Der Name des Plugins.</param>
-        public BasePlugin(string pluginName) : base(pluginName) { }
+        public BasePlugin() : base() { }
 
         /// <summary>
         /// Konstruktor, der den Plugin-Namen und die unsichere Konfiguration setzt.
         /// </summary>
-        /// <param name="pluginName">Der Name des Plugins.</param>
         /// <param name="unsecureConfiguration">Die unsichere Konfiguration des Plugins.</param>
-        public BasePlugin(string pluginName, string unsecureConfiguration) : base(pluginName, unsecureConfiguration) { }
+        public BasePlugin(string unsecureConfiguration) : base(unsecureConfiguration) { }
 
         /// <summary>
         /// Konstruktor, der den Plugin-Namen, die unsichere und die sichere Konfiguration setzt.
         /// </summary>
-        /// <param name="pluginName">Der Name des Plugins.</param>
         /// <param name="unsecureConfiguration">Die unsichere Konfiguration des Plugins.</param>
         /// <param name="secureConfiguration">Die sichere Konfiguration des Plugins.</param>
-        public BasePlugin(string pluginName, string unsecureConfiguration, string secureConfiguration)
-            : base(pluginName, unsecureConfiguration, secureConfiguration) { }
+        public BasePlugin(string unsecureConfiguration, string secureConfiguration)
+            : base(unsecureConfiguration, secureConfiguration) { }
 
         /// <summary>
         /// Führt die Hauptlogik des Plugins basierend auf dem aktuellen Kontext und den übergebenen Parametern aus.
@@ -281,10 +317,23 @@ namespace DataversePluginTemplate.Service
                         break;
                 }
             }
+            catch (APIException apiException)
+            {
+                DebugLog(pluginContext, $"An {nameof(APIException)} was thrown. {apiException.StackTrace}");
+                Log(pluginContext.TracingService, $"{(int)apiException.StatusCode}: {apiException.Message}");
+                throw new InvalidPluginExecutionException(apiException.Message, apiException.StatusCode);
+            }
             catch (FaultException<OrganizationServiceFault> orgServiceFault)
             {
-                string message = $"[{_PluginName}] ERROR: {orgServiceFault}";
+                DebugLog(pluginContext, $"A {nameof(FaultException)} was thrown. {orgServiceFault.StackTrace}");
+                string message = $"[ERROR]: {orgServiceFault}";
                 throw new InvalidPluginExecutionException(message, orgServiceFault);
+            }
+            catch (Exception ex)
+            {
+                DebugLog(pluginContext, $"A {ex.GetType().Name} was thrown. {ex.StackTrace}");
+                string message = $"[ERROR]: {ex.Message}";
+                throw new InvalidPluginExecutionException(message, ex);
             }
         }
 

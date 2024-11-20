@@ -14,26 +14,24 @@ namespace DataversePluginTemplate.Prebuild
     public abstract class EntityPreprocessingPlugin : BasePlugin, IPlugin
     {
         /// <summary>
-        /// Initialisiert eine neue Instanz der <see cref="EntityPreprocessingPlugin"/> Klasse mit einem Plugin-Namen.
+        /// Initialisiert eine neue Instanz der <see cref="EntityPreprocessingPlugin"/> Klasse
         /// </summary>
         /// <param name="pluginName">Der Name des Plugins.</param>
-        public EntityPreprocessingPlugin(string pluginName) : base(pluginName) { }
+        public EntityPreprocessingPlugin() : base() { }
 
         /// <summary>
-        /// Initialisiert eine neue Instanz der <see cref="EntityPreprocessingPlugin"/> Klasse mit einem Plugin-Namen und einer ungesicherten Konfiguration.
+        /// Initialisiert eine neue Instanz der <see cref="EntityPreprocessingPlugin"/> Klasse mit einer ungesicherten Konfiguration.
         /// </summary>
-        /// <param name="pluginName">Der Name des Plugins.</param>
         /// <param name="unsecureConfiguration">Die ungesicherte Konfiguration.</param>
-        public EntityPreprocessingPlugin(string pluginName, string unsecureConfiguration) : base(pluginName, unsecureConfiguration) { }
+        public EntityPreprocessingPlugin(string unsecureConfiguration) : base(unsecureConfiguration) { }
 
         /// <summary>
-        /// Initialisiert eine neue Instanz der <see cref="EntityPreprocessingPlugin"/> Klasse mit einem Plugin-Namen, einer ungesicherten und einer gesicherten Konfiguration.
+        /// Initialisiert eine neue Instanz der <see cref="EntityPreprocessingPlugin"/> Klasse mit einer ungesicherten und einer gesicherten Konfiguration.
         /// </summary>
-        /// <param name="pluginName">Der Name des Plugins.</param>
         /// <param name="unsecureConfiguration">Die ungesicherte Konfiguration.</param>
         /// <param name="secureConfiguration">Die gesicherte Konfiguration.</param>
-        public EntityPreprocessingPlugin(string pluginName, string unsecureConfiguration, string secureConfiguration)
-            : base(pluginName, unsecureConfiguration, secureConfiguration) { }
+        public EntityPreprocessingPlugin(string unsecureConfiguration, string secureConfiguration)
+            : base(unsecureConfiguration, secureConfiguration) { }
 
         /// <summary>
         /// Abstrakte Methode, die von abgeleiteten Klassen implementiert werden muss, um die Attribute der Entität zu verarbeiten.
@@ -87,7 +85,7 @@ namespace DataversePluginTemplate.Prebuild
             var attributEnumerator = Process(context, entity)
                 .GetEnumerator();
 
-            while(attributEnumerator.MoveNext())
+            while (attributEnumerator.MoveNext())
             {
                 if (!entity.Attributes.Contains(attributEnumerator.Current.attribut))
                     entity.Attributes.Add(attributEnumerator.Current.attribut, attributEnumerator.Current.value);

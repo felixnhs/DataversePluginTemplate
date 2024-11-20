@@ -4,7 +4,7 @@ using System.Reflection;
 namespace DataversePluginTemplate.Service
 {
     internal static class PropertyExtensionMethods
-    { 
+    {
         /// <summary>
         /// Bestimmt den logischen Namen einer Eigenschaft, die durch das übergebene PropertyInfo-Objekt beschrieben wird.
         /// Die Eigenschaft muss mit einem <see cref="LogicalNameAttribute"/> versehen sein.
@@ -14,7 +14,7 @@ namespace DataversePluginTemplate.Service
         /// <exception cref="Exception">Wird ausgelöst, wenn die Eigenschaft nicht mit einem <see cref="LogicalNameAttribute"/> versehen ist.</exception>
         internal static string GetLogicalName(this PropertyInfo propertyInfo)
         {
-            var logicalNameAttribute = propertyInfo.GetCustomAttribute<LogicalNameAttribute>();
+            var logicalNameAttribute = (LogicalNameAttribute)Attribute.GetCustomAttribute(propertyInfo, typeof(LogicalNameAttribute));
             if (logicalNameAttribute == null)
                 throw new Exception("Property does not have Logicalname.");
 

@@ -35,8 +35,8 @@ namespace DataversePluginTemplate.Queries
         internal FilterContext NotIn(string columnName, object value) => HandleInternal(columnName, value, ConditionOperator.NotIn);
         internal FilterContext Between(string columnName, object value) => HandleInternal(columnName, value, ConditionOperator.Between);
         internal FilterContext NotBetween(string columnName, object value) => HandleInternal(columnName, value, ConditionOperator.NotBetween);
-        internal FilterContext IsNull(string columnName) => HandleInternal(columnName, null, ConditionOperator.Null);
-        internal FilterContext IsNotNull(string columnName) => HandleInternal(columnName, null, ConditionOperator.NotNull);
+        internal FilterContext IsNull(string columnName) => HandleInternal(columnName, ConditionOperator.Null);
+        internal FilterContext IsNotNull(string columnName) => HandleInternal(columnName, ConditionOperator.NotNull);
         internal FilterContext Yesterday(string columnName, object value = null) => HandleInternal(columnName, value, ConditionOperator.Yesterday);
         internal FilterContext Today(string columnName, object value = null) => HandleInternal(columnName, value, ConditionOperator.Today);
         internal FilterContext Tomorrow(string columnName, object value = null) => HandleInternal(columnName, value, ConditionOperator.Tomorrow);
@@ -142,7 +142,14 @@ namespace DataversePluginTemplate.Queries
         /// <returns>Eine Instanz von FilterContext für method chaining.</returns>
         private FilterContext HandleInternal(string columnName, object value, ConditionOperator conditionOperator)
         {
-            var condition = new ConditionExpression(columnName, ConditionOperator.Equal, value);
+            var condition = new ConditionExpression(columnName, conditionOperator, value);
+            _filterExpression.Conditions.Add(condition);
+            return this;
+        }
+        
+        private FilterContext HandleInternal(string columnName, ConditionOperator conditionOperator)
+        {
+            var condition = new ConditionExpression(columnName, conditionOperator);
             _filterExpression.Conditions.Add(condition);
             return this;
         }
@@ -176,8 +183,8 @@ namespace DataversePluginTemplate.Queries
         internal FilterContext<T> NotIn<TProperty>(Expression<Func<TProperty>> propertySelector, object value) => HandleInternal(propertySelector, value, ConditionOperator.NotIn);
         internal FilterContext<T> Between<TProperty>(Expression<Func<TProperty>> propertySelector, object value) => HandleInternal(propertySelector, value, ConditionOperator.Between);
         internal FilterContext<T> NotBetween<TProperty>(Expression<Func<TProperty>> propertySelector, object value) => HandleInternal(propertySelector, value, ConditionOperator.NotBetween);
-        internal FilterContext<T> IsNull<TProperty>(Expression<Func<TProperty>> propertySelector) => HandleInternal(propertySelector, null, ConditionOperator.Null);
-        internal FilterContext<T> IsNotNull<TProperty>(Expression<Func<TProperty>> propertySelector) => HandleInternal(propertySelector, null, ConditionOperator.NotNull);
+        internal FilterContext<T> IsNull<TProperty>(Expression<Func<TProperty>> propertySelector) => HandleInternal(propertySelector, ConditionOperator.Null);
+        internal FilterContext<T> IsNotNull<TProperty>(Expression<Func<TProperty>> propertySelector) => HandleInternal(propertySelector, ConditionOperator.NotNull);
         internal FilterContext<T> Yesterday<TProperty>(Expression<Func<TProperty>> propertySelector, object value = null) => HandleInternal(propertySelector, value, ConditionOperator.Yesterday);
         internal FilterContext<T> Today<TProperty>(Expression<Func<TProperty>> propertySelector, object value = null) => HandleInternal(propertySelector, value, ConditionOperator.Today);
         internal FilterContext<T> Tomorrow<TProperty>(Expression<Func<TProperty>> propertySelector, object value = null) => HandleInternal(propertySelector, value, ConditionOperator.Tomorrow);
@@ -268,11 +275,20 @@ namespace DataversePluginTemplate.Queries
             return this;
         }
 
+        private FilterContext<T> HandleInternal<TProperty>(Expression<Func<TProperty>> propertySelector, ConditionOperator conditionOperator)
+        {
+            var propertyInfo = ExpressionExtensionMethods.GetPropertyInfo<T, TProperty>(propertySelector);
+            var logicalName = propertyInfo.GetLogicalName();
+            var condition = new ConditionExpression(logicalName, conditionOperator);
+
+            _filterExpression.Conditions.Add(condition);
+            return this;
+        }
         private FilterContext<T> HandleInternal<TProperty>(Expression<Func<TProperty>> propertySelector, object value, ConditionOperator conditionOperator)
         {
             var propertyInfo = ExpressionExtensionMethods.GetPropertyInfo<T, TProperty>(propertySelector);
             var logicalName = propertyInfo.GetLogicalName();
-            var condition = new ConditionExpression(logicalName, ConditionOperator.Equal, value);
+            var condition = new ConditionExpression(logicalName, conditionOperator, value);
             _filterExpression.Conditions.Add(condition);
             return this;
         }

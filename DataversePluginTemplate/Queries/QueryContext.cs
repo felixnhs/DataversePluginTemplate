@@ -82,12 +82,6 @@ namespace DataversePluginTemplate.Queries
             return this;
         }
 
-        internal QueryContext Order(string column, OrderType orderType = OrderType.Ascending)
-        {
-            _expression.Orders.Add(new OrderExpression(column, orderType));
-            return this;
-        }
-
         /// <summary>
         /// Fügt der Abfrage Bedingungen mit dem angegebenen logischen Operator hinzu.
         /// </summary>
@@ -176,32 +170,12 @@ namespace DataversePluginTemplate.Queries
         /// <returns>Die aktuelle Instanz der <see cref="QueryContext{T}"/> zur Verkettung weiterer Methodenaufrufe.</returns>
         internal QueryContext<T> Columns(Expression<Func<T, object[]>> propertySelector)
         {
-            if (propertySelector.Body is NewArrayExpression newArrayExpr)
-            {
-                var propertyInfos = new List<PropertyInfo>();
-                foreach (var expression in newArrayExpr.Expressions)
-                {
-                    if (expression is MemberExpression memberExpression)
-                    {
-                        var propertyInfo = memberExpression.GetPropertyInfo();
-                        propertyInfos.Add(propertyInfo);
-                    }
-                    else if (expression is UnaryExpression unaryExpression && unaryExpression.Operand is MemberExpression operandMember)
-                    {
-                        var propertyInfo = operandMember.GetPropertyInfo();
-                        propertyInfos.Add(propertyInfo);
-                    }
-                    else
-                    {
-                        throw new ArgumentException("Der Ausdruck muss auf eine Eigenschaft zugreifen.", nameof(propertySelector));
-                    }
-                }
+            var propertyInfos = propertySelector.GetPropertyInfos();
 
-                _expression.ColumnSet.AddColumns(propertyInfos
-                    .Select(prop => prop.GetLogicalName())
-                    .Where(name => name != null)
-                    .ToArray());
-            }
+            _expression.ColumnSet.AddColumns(propertyInfos
+                .Select(prop => prop.GetLogicalName())
+                .Where(name => !string.IsNullOrWhiteSpace(name))
+                .ToArray());
 
             return this;
         }
@@ -228,13 +202,6 @@ namespace DataversePluginTemplate.Queries
             return this;
         }
 
-        internal QueryContext<T> Order<TProperty>(Expression<Func<T, TProperty>> propertyExpression, OrderType orderType = OrderType.Ascending)
-        {
-            var column = propertyExpression.GetPropertyInfo().GetLogicalName();
-            _expression.Orders.Add(new OrderExpression(column, orderType));
-            return this;
-        }
-
         /// <summary>
         /// Definiert die Bedingungen für die Abfrage mithilfe eines Filterausdrucks.
         /// </summary>
@@ -246,7 +213,7 @@ namespace DataversePluginTemplate.Queries
             var filterExpression = new FilterExpression(logicalOperator);
 
             var filterContext = new FilterContext<T>(filterExpression);
-            configureFilter(filterContext, null); // TODO: Überprüfen, ob die Ausdrücke trotzdem funktionieren
+            configureFilter(filterContext, null);
             _expression.Criteria.AddFilter(filterExpression);
 
             return this;

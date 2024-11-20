@@ -3,22 +3,18 @@ using Microsoft.Xrm.Sdk;
 
 namespace DataversePluginTemplate.Examples
 {
-    [LogicalName("passagiere_im_flug")]
+    [LogicalName(LOGICAL_NAME)]
     internal class PassagiereImFlug : BaseEntity<PassagiereImFlug>
     {
-        [LogicalName("passagierid")]
-        public string PassagierId
-        {
-            get => Get(p => p.PassagierId);
-            set => Set(p => p.PassagierId, value);
-        }
+        internal const string LOGICAL_NAME = "passagiere_im_flug";
+        internal const string PASSAGIER_ID = "passagierid";
+        internal const string FLUG_ID = "flugid";
 
-        [LogicalName("flugid")]
-        public string FlugId 
-        {
-            get => Get(p => p.FlugId);
-            set => Set(p => p.FlugId, value);
-        }
+        [LogicalName(PASSAGIER_ID)]
+        public string PassagierId { get; set; }
+
+        [LogicalName(FLUG_ID)]
+        public string FlugId { get; set; }
 
         public PassagiereImFlug(Entity entity = null) : base(entity) { }
     }

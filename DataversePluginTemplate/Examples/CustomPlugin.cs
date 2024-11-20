@@ -1,6 +1,8 @@
-﻿using DataversePluginTemplate.Service;
+﻿using DataversePluginTemplate.Model.Enums;
+using DataversePluginTemplate.Service;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,20 +16,20 @@ namespace DataversePluginTemplate.Examples
         /// <summary>
         /// Standardkonstruktor für das Plugin.
         /// </summary>
-        public CustomPlugin() : base(nameof(CustomPlugin)) { }
+        public CustomPlugin() : base() { }
 
         /// <summary>
         /// Konstruktor für das Plugin mit ungesicherter Konfiguration.
         /// </summary>
         /// <param name="unsecureConfiguration">Ungesicherte Konfigurationsdaten.</param>
-        public CustomPlugin(string unsecureConfiguration) : base(nameof(CustomPlugin), unsecureConfiguration) { }
+        public CustomPlugin(string unsecureConfiguration) : base(unsecureConfiguration) { }
 
         /// <summary>
         /// Konstruktor für das Plugin mit ungesicherter und gesicherter Konfiguration.
         /// </summary>
         /// <param name="unsecureConfiguration">Ungesicherte Konfigurationsdaten.</param>
         /// <param name="secureConfiguration">Gesicherte Konfigurationsdaten.</param>
-        public CustomPlugin(string unsecureConfiguration, string secureConfiguration) : base(nameof(CustomPlugin), unsecureConfiguration, secureConfiguration) { }
+        public CustomPlugin(string unsecureConfiguration, string secureConfiguration) : base(unsecureConfiguration, secureConfiguration) { }
 
         /// <summary>
         /// Überschriebene Methode, die beim Erstellen einer Entität aufgerufen wird.
@@ -36,7 +38,6 @@ namespace DataversePluginTemplate.Examples
         /// <param name="entity">Die erstellte Entität.</param>
         protected override void OnCreate(PluginContext context, Entity entity)
         {
-
             /*
              * TODO: Ersetzte die Query durch deine eigene Unternehmenslogik
              * 
@@ -97,8 +98,9 @@ namespace DataversePluginTemplate.Examples
                 .Columns(passagier => new object[] { passagier.Nachname, passagier.Alter })
                 .Top(1)
                 .Conditions(LogicalOperator.And, (filter, passagier) =>
-                    filter.Equals(() => passagier.Nachname, "Müller"))
-                .Join<PassagiereImFlug>(pif => pif.PassagierId, JoinOperator.Inner, passagiereImFlug =>
+                    filter.Equals(() => passagier.Nachname, "Müller")
+                    .IsNotNull(() => passagier.Alter))
+                .Join<PassagiereImFlug>(passagier => passagier.Id, pif => pif.PassagierId, JoinOperator.Inner, passagiereImFlug =>
                 {
                     passagiereImFlug
                         .Columns(pif => new object[] { pif.FlugId })
@@ -109,9 +111,16 @@ namespace DataversePluginTemplate.Examples
 
             foreach (var passagier in passagierListe)
             {
-                var alter = passagier.Get(p => p.Alter);
-                passagier.Set(p => p.Alter, 20);
+                passagier.Alter += 1;
+                context.TracingService.DebugLog($"Happy Birthday, {passagier.Vorname}!");
             }
+
+            Notification.Create(context, new Guid("User Id here"))
+                .AddTitle("Test Nachricht")
+                .AddMessage("Lorem ipsum")
+                .AddIcon(NotificationIcon.Success)
+                .SetNotificationType(NotificationType.Hidden)
+                .Send();
         }
     }
 }

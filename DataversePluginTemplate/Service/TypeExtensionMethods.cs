@@ -55,7 +55,7 @@ namespace DataversePluginTemplate.Service
         /// <exception cref="Exception">Wird ausgelöst, wenn der Typ keinen Primärschlüssel definiert hat.</exception>
         internal static string GetPrimaryKeyName(this Type type)
         {
-            foreach(var property in type.GetProperties())
+            foreach (var property in type.GetProperties())
             {
                 if (property.IsPrimaryKey())
                     return property.GetLogicalName();
@@ -65,5 +65,4 @@ namespace DataversePluginTemplate.Service
         }
 
     }
-
 }

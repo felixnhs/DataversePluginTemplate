@@ -13,9 +13,9 @@ namespace DataversePluginTemplate.Examples
         // Statische Konstante, die den Namen der Spalte definiert, die den Namen der Entität enthält.
         private const string NAME_COLUMN = "primaryName";
 
-        public CustomRenamePlugin() : base(nameof(CustomRenamePlugin), NAME_COLUMN) { }
-        public CustomRenamePlugin(string unsecureConfiguration) : base(nameof(CustomRenamePlugin), NAME_COLUMN, unsecureConfiguration) { }
-        public CustomRenamePlugin(string unsecureConfiguration, string secureConfiguration) : base(nameof(CustomRenamePlugin), NAME_COLUMN, unsecureConfiguration, secureConfiguration) { }
+        public CustomRenamePlugin() : base(NAME_COLUMN) { }
+        public CustomRenamePlugin(string unsecureConfiguration) : base(NAME_COLUMN, unsecureConfiguration) { }
+        public CustomRenamePlugin(string unsecureConfiguration, string secureConfiguration) : base(NAME_COLUMN, unsecureConfiguration, secureConfiguration) { }
 
         /// <summary>
         /// Implementiert die Logik zur Erstellung eines neuen Namens für eine Entität.

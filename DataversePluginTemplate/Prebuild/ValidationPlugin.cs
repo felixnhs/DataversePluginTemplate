@@ -5,9 +5,9 @@ namespace DataversePluginTemplate.Prebuild
 {
     public abstract class ValidationPlugin : BasePlugin, IPlugin
     {
-        public ValidationPlugin(string pluginName) : base(pluginName) { }
-        public ValidationPlugin(string pluginName, string unsecureConfiguration) : base(pluginName, unsecureConfiguration) { }
-        public ValidationPlugin(string pluginName, string unsecureConfiguration, string secureConfiguration) : base(pluginName, unsecureConfiguration, secureConfiguration) { }
+        public ValidationPlugin() : base() { }
+        public ValidationPlugin(string unsecureConfiguration) : base(unsecureConfiguration) { }
+        public ValidationPlugin(string unsecureConfiguration, string secureConfiguration) : base(unsecureConfiguration, secureConfiguration) { }
 
         /// <summary>
         /// Validiert die Erstellung der Entität. Diese Methode dient dazu, sicherzustellen, dass die Entität

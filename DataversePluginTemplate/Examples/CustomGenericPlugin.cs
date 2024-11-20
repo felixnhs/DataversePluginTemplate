@@ -11,20 +11,20 @@ namespace DataversePluginTemplate.Examples
         /// <summary>
         /// Standardkonstruktor für das Plugin.
         /// </summary>
-        public CustomGenericPlugin() : base(nameof(CustomGenericPlugin)) { }
+        public CustomGenericPlugin() : base() { }
 
         /// <summary>
         /// Konstruktor für das Plugin mit ungesicherter Konfiguration.
         /// </summary>
         /// <param name="unsecureConfiguration">Ungesicherte Konfigurationsdaten.</param>
-        public CustomGenericPlugin(string unsecureConfiguration) : base(nameof(CustomGenericPlugin), unsecureConfiguration) { }
+        public CustomGenericPlugin(string unsecureConfiguration) : base(unsecureConfiguration) { }
 
         /// <summary>
         /// Konstruktor für das Plugin mit ungesicherter und gesicherter Konfiguration.
         /// </summary>
         /// <param name="unsecureConfiguration">Ungesicherte Konfigurationsdaten.</param>
         /// <param name="secureConfiguration">Gesicherte Konfigurationsdaten.</param>
-        public CustomGenericPlugin(string unsecureConfiguration, string secureConfiguration) : base(nameof(CustomGenericPlugin), unsecureConfiguration, secureConfiguration) { }
+        public CustomGenericPlugin(string unsecureConfiguration, string secureConfiguration) : base(unsecureConfiguration, secureConfiguration) { }
 
         /// <summary>
         /// Überschriebene Methode, die beim Ausführen des Plugins aufgerufen wird.

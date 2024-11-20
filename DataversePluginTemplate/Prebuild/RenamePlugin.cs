@@ -16,34 +16,31 @@ namespace DataversePluginTemplate.Prebuild
         private readonly string _nameColumn;
 
         /// <summary>
-        /// Konstruktor, der den Plugin-Namen und den Namen der Spalte setzt.
+        /// Konstruktor, der den Namen der Spalte setzt.
         /// </summary>
-        /// <param name="pluginName">Name des Plugins.</param>
         /// <param name="nameColumn">Name der Spalte, die den Namen enthält.</param>
-        public RenamePlugin(string pluginName, string nameColumn) : base(pluginName)
+        public RenamePlugin(string nameColumn) : base()
         {
             _nameColumn = nameColumn;
         }
 
         /// <summary>
-        /// Konstruktor, der den Plugin-Namen, den Namen der Spalte und die ungesicherte Konfiguration setzt.
+        /// Konstruktor, der den Namen der Spalte und die ungesicherte Konfiguration setzt.
         /// </summary>
-        /// <param name="pluginName">Name des Plugins.</param>
         /// <param name="nameColumn">Name der Spalte, die den Namen enthält.</param>
         /// <param name="unsecureConfiguration">Ungesicherte Konfiguration für das Plugin.</param>
-        public RenamePlugin(string pluginName, string nameColumn, string unsecureConfiguration) : base(pluginName, unsecureConfiguration)
+        public RenamePlugin(string nameColumn, string unsecureConfiguration) : base(unsecureConfiguration)
         {
             _nameColumn = nameColumn;
         }
 
         /// <summary>
-        /// Konstruktor, der den Plugin-Namen, den Namen der Spalte, die ungesicherte und gesicherte Konfiguration setzt.
+        /// Konstruktor, der den Namen der Spalte, die ungesicherte und gesicherte Konfiguration setzt.
         /// </summary>
-        /// <param name="pluginName">Name des Plugins.</param>
         /// <param name="nameColumn">Name der Spalte, die den Namen enthält.</param>
         /// <param name="unsecureConfiguration">Ungesicherte Konfiguration für das Plugin.</param>
         /// <param name="secureConfiguration">Gesicherte Konfiguration für das Plugin.</param>
-        public RenamePlugin(string pluginName, string nameColumn, string unsecureConfiguration, string secureConfiguration) : base(pluginName, unsecureConfiguration, secureConfiguration)
+        public RenamePlugin(string nameColumn, string unsecureConfiguration, string secureConfiguration) : base(unsecureConfiguration, secureConfiguration)
         {
             _nameColumn = nameColumn;
         }

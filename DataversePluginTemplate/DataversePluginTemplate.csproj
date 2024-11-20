@@ -9,9 +9,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DataversePluginTemplate</RootNamespace>
     <AssemblyName>DataversePluginTemplate</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -65,8 +66,8 @@
     <Reference Include="System.Text.Encodings.Web, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Text.Encodings.Web.6.0.0\lib\net461\System.Text.Encodings.Web.dll</HintPath>
     </Reference>
-    <Reference Include="System.Text.Json, Version=6.0.0.7, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Text.Json.6.0.7\lib\net461\System.Text.Json.dll</HintPath>
+    <Reference Include="System.Text.Json, Version=6.0.0.10, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.Json.6.0.10\lib\net461\System.Text.Json.dll</HintPath>
     </Reference>
     <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
@@ -85,10 +86,19 @@
   <ItemGroup>
     <Compile Include="Examples\Passagier.cs" />
     <Compile Include="Examples\PassagiereImFlug.cs" />
+    <Compile Include="Model\Enums\Internal\Columns.cs" />
+    <Compile Include="Model\Enums\NotificationIcon.cs" />
+    <Compile Include="Model\Enums\NotificationType.cs" />
+    <Compile Include="Prebuild\APIPlugin.cs" />
     <Compile Include="Prebuild\EntityPreprocessingPlugin.cs" />
     <Compile Include="Prebuild\ValidationPlugin.cs" />
+    <Compile Include="Service\APIException.cs" />
+    <Compile Include="Service\APIParameterAttribute.cs" />
     <Compile Include="Service\BaseEntity.cs" />
+    <Compile Include="Service\BaseInputModel.cs" />
+    <Compile Include="Service\EnumExtensionMethods.cs" />
     <Compile Include="Service\ExpressionExtensionMethods.cs" />
+    <Compile Include="Service\InputExtensionMethods.cs" />
     <Compile Include="Service\LogicalNameAttribute.cs" />
     <Compile Include="Service\BasePlugin.cs" />
     <Compile Include="Examples\CustomGenericPlugin.cs" />
@@ -103,17 +113,24 @@
     <Compile Include="Queries\LinkContext.cs" />
     <Compile Include="Queries\QueryContext.cs" />
     <Compile Include="Service\EntityExtensionMethods.cs" />
+    <Compile Include="Service\NameAttribute.cs" />
+    <Compile Include="Service\Notification.cs" />
     <Compile Include="Service\OrganizationServiceExtensionMethods.cs" />
+    <Compile Include="Service\ParameterType.cs" />
     <Compile Include="Service\PluginContext.cs" />
     <Compile Include="Service\PluginTracingService.cs" />
     <Compile Include="Service\PrimaryKeyAttribute.cs" />
     <Compile Include="Service\PropertyExtensionMethods.cs" />
+    <Compile Include="Service\RequestAttribute.cs" />
+    <Compile Include="Service\RequiredAttribute.cs" />
     <Compile Include="Service\ServiceProviderExtensionMethods.cs" />
+    <Compile Include="Service\TracingServiceExtensionMethods.cs" />
     <Compile Include="Service\TypeExtensionMethods.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

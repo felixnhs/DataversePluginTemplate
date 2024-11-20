@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -17,46 +18,26 @@ namespace DataversePluginTemplate.Service
         /// <exception cref="Exception">Ausnahme, die ausgelöst wird, wenn der ReflectedType der Eigenschaft nicht mit TType übereinstimmt oder von diesem abgeleitet ist.</exception>
         internal static PropertyInfo GetPropertyInfo<TType, TProperty>(this Expression<Func<TType, TProperty>> propertySelector)
         {
-            MemberExpression member;
-            if (propertySelector.Body is UnaryExpression unaryExpression)
-                member = unaryExpression.Operand as MemberExpression;
-            
+            if (propertySelector.Body is MemberExpression memberExpression)
+                return memberExpression.GetPropertyInfo();
+
+            else if (propertySelector.Body is UnaryExpression unaryExpression && unaryExpression.Operand is MemberExpression operandMember)
+                return operandMember.GetPropertyInfo();
+
             else
-                member = propertySelector.Body as MemberExpression;
-
-            if (member == null)
-                throw new ArgumentException("Expression is not a MemberExpression.");
-
-            var propInfo = member.GetPropertyInfo();
-            Type type = typeof(TType);
-
-            // Sicherstellen, dass TChild der gleiche Typ ist, wie die Klasse inder der die Property ist, bzw. eine Subklasse davon
-            if (propInfo.ReflectedType != null && type != propInfo.ReflectedType && !type.IsSubclassOf(propInfo.ReflectedType))
-                throw new Exception($"ReflectedType is not equal or derived from Type {type.Name}");
-
-            return propInfo;
+                throw new ArgumentException("Invalid Expression");
         }
 
         internal static PropertyInfo GetPropertyInfo<TType, TProperty>(this Expression<Func<TProperty>> propertySelector)
         {
-            MemberExpression member;
-            if (propertySelector.Body is UnaryExpression unaryExpression)
-                member = unaryExpression.Operand as MemberExpression;
+            if (propertySelector.Body is MemberExpression memberExpression)
+                return memberExpression.GetPropertyInfo();
+
+            else if (propertySelector.Body is UnaryExpression unaryExpression && unaryExpression.Operand is MemberExpression operandMember)
+                return operandMember.GetPropertyInfo();
 
             else
-                member = propertySelector.Body as MemberExpression;
-
-            if (member == null)
-                throw new ArgumentException("Expression is not a MemberExpression.");
-
-            var propInfo = member.GetPropertyInfo();
-            Type type = typeof(TType);
-
-            // Sicherstellen, dass TChild der gleiche Typ ist, wie die Klasse inder der die Property ist, bzw. eine Subklasse davon
-            if (propInfo.ReflectedType != null && type != propInfo.ReflectedType && !type.IsSubclassOf(propInfo.ReflectedType))
-                throw new Exception($"ReflectedType is not equal or derived from Type {type.Name}");
-
-            return propInfo;
+                throw new ArgumentException("Invalid Expression");
         }
 
         /// <summary>
@@ -71,6 +52,28 @@ namespace DataversePluginTemplate.Service
                 throw new ArgumentException("Member is not a property.");
 
             return propInfo;
+        }
+
+        internal static PropertyInfo[] GetPropertyInfos<T>(this Expression<Func<T, object[]>> propertySelector)
+        {
+            if (!(propertySelector.Body is NewArrayExpression newArrayExpression))
+                throw new ArgumentException($"Body is not a {nameof(NewArrayExpression)}");
+
+            var propertyInfos = new List<PropertyInfo>();
+
+            foreach (var expression in newArrayExpression.Expressions)
+            {
+                if (expression is MemberExpression memberExpression)
+                    propertyInfos.Add(GetPropertyInfo(memberExpression));
+
+                else if (expression is UnaryExpression unaryExpression && unaryExpression.Operand is MemberExpression operandMember)
+                    propertyInfos.Add(GetPropertyInfo(operandMember));
+
+                else
+                    throw new ArgumentException("Der Ausdruck muss auf eine Eigenschaft zugreifen.", nameof(propertySelector));
+            }
+
+            return propertyInfos.ToArray();
         }
     }
 }

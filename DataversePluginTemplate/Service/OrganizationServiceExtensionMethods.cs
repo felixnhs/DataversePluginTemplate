@@ -1,9 +1,13 @@
-﻿using DataversePluginTemplate.Queries;
+﻿using DataversePluginTemplate.Model.Enums.Internal;
+using DataversePluginTemplate.Queries;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Query;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace DataversePluginTemplate.Service
 {
@@ -75,7 +79,7 @@ namespace DataversePluginTemplate.Service
         /// <returns>Die Antwort des OrganizationService nach dem Erstellen der Entitäten.</returns>
         internal static OrganizationResponse CreateMultiple(
             this IOrganizationService orgService,
-            IEnumerable<Entity> entities,
+        IEnumerable<Entity> entities,
             Action<ExecuteMultipleRequest> configureRequest = null)
         {
             return orgService.ExecuteMultiple<CreateRequest, Entity>(entities, (request, entity) =>
@@ -110,7 +114,7 @@ namespace DataversePluginTemplate.Service
         /// <returns>Die Antwort des OrganizationService nach der Aktualisierung der Entitäten.</returns>
         internal static OrganizationResponse UpdateMultiple(
             this IOrganizationService orgService,
-            IEnumerable<Entity> entities,
+        IEnumerable<Entity> entities,
             Action<ExecuteMultipleRequest> configureRequest = null)
         {
             return orgService.ExecuteMultiple<UpdateRequest, Entity>(entities, (request, entity) =>
@@ -171,155 +175,147 @@ namespace DataversePluginTemplate.Service
             });
         }
 
-        /// <summary>
-        /// Ruft eine Entität aus dem OrganizationService ab, indem eine Entitätsreferenz und die angegebenen Spalten verwendet werden.
-        /// </summary>
-        /// <param name="orgService">Die IOrganizationService-Instanz.</param>
-        /// <param name="entityReference">Die Referenz zur abzurufenden Entität.</param>
-        /// <param name="columns">Ein Array von Spaltennamen, die abgerufen werden sollen.</param>
-        /// <returns>Die abgerufene Entität oder null, wenn die Entitätsreferenz null ist.</returns>
-        internal static Entity Retrieve(
-            this IOrganizationService orgService,
-            EntityReference entityReference,
-            params string[] columns)
+        internal static Entity Retrieve(this IOrganizationService orgService, EntityReference entityReference, params string[] columns)
         {
             return orgService.Retrieve(entityReference, new ColumnSet(columns));
         }
+        internal static Entity Retrieve(this IOrganizationService orgService, EntityReference entityReference, bool allColumns = true)
+        {
+            return orgService.Retrieve(entityReference, new ColumnSet(allColumns));
+        }
+        internal static Entity Retrieve(this IOrganizationService orgService, EntityReference entityReference, ColumnSet columnSet)
+        {
+            if (entityReference == null)
+                return null;
+            return orgService.Retrieve(entityReference.LogicalName, entityReference.Id, columnSet);
+        }
 
-        internal static Entity Retrieve(
-            this IOrganizationService orgService,
-            EntityReference entityReference,
-            ColumnSet columnSet)
+        internal static Entity Retrieve(this IOrganizationService orgService, Entity entity, params string[] columns)
+        {
+            return orgService.Retrieve(entity, new ColumnSet(columns));
+        }
+        internal static Entity Retrieve(this IOrganizationService orgService, Entity entity, bool allColumns = true)
+        {
+            return orgService.Retrieve(entity, new ColumnSet(allColumns));
+        }
+        internal static Entity Retrieve(this IOrganizationService orgService, Entity entity, ColumnSet columnSet)
+        {
+            if (entity == null)
+                return null;
+            return orgService.Retrieve(entity.ToEntityReference(), columnSet);
+        }
+
+        internal static Entity Retrieve(this IOrganizationService orgService, string entityName, Guid id, params string[] columns)
+        {
+            return orgService.Retrieve(entityName, id, new ColumnSet(columns));
+        }
+        internal static Entity Retrieve(this IOrganizationService orgService, string entityName, Guid id, bool allColumns = true)
+        {
+            return orgService.Retrieve(entityName, id, new ColumnSet(allColumns));
+        }
+        internal static Entity Retrieve(this IOrganizationService orgService, string entityName, Guid id, ColumnSet columnSet)
+        {
+            if (id == null || string.IsNullOrWhiteSpace(entityName))
+                return null;
+
+            return orgService.Retrieve(entityName, id, columnSet);
+        }
+
+        internal static T Retrieve<T>(this IOrganizationService orgService, EntityReference entityReference, params string[] columns)
+            where T : BaseEntity<T>
+        {
+            return orgService.Retrieve<T>(entityReference, new ColumnSet(columns));
+        }
+        internal static T Retrieve<T>(this IOrganizationService orgService, EntityReference entityReference, bool allColumns)
+            where T : BaseEntity<T>
+        {
+            return orgService.Retrieve<T>(entityReference, new ColumnSet(allColumns));
+        }
+        internal static T Retrieve<T>(this IOrganizationService orgService, EntityReference entityReference, Columns columns = Columns.DefinedOnly)
+            where T : BaseEntity<T>
+        {
+            return orgService.Retrieve<T>(entityReference, GetColumnSet<T>(columns));
+        }
+        internal static T Retrieve<T>(this IOrganizationService orgService, EntityReference entityReference, Expression<Func<T, object[]>> propertySelector)
+            where T : BaseEntity<T>
+        {
+            ColumnSet columnSet = GetFromPropertySelector(propertySelector);
+            return orgService.Retrieve<T>(entityReference, columnSet);
+        }
+        internal static T Retrieve<T>(this IOrganizationService orgService, EntityReference entityReference, ColumnSet columnSet)
+            where T : BaseEntity<T>
         {
             if (entityReference == null)
                 return null;
 
-            return orgService.Retrieve(entityReference.LogicalName, entityReference.Id, columnSet);
+            return orgService.Retrieve(entityReference.LogicalName, entityReference.Id, columnSet)
+            .As<T>();
         }
 
-        /// <summary>
-        /// Ruft eine Entität aus dem OrganizationService ab, indem eine Entitätsreferenz und eine Option zum Abrufen aller Spalten verwendet werden.
-        /// </summary>
-        /// <param name="orgService">Die IOrganizationService-Instanz.</param>
-        /// <param name="entityReference">Die Referenz zur abzurufenden Entität.</param>
-        /// <param name="allColumns">Gibt an, ob alle Spalten abgerufen werden sollen.</param>
-        /// <returns>Die abgerufene Entität oder null, wenn die Entitätsreferenz null ist.</returns>
-        internal static Entity Retrieve(
-            this IOrganizationService orgService,
-            EntityReference entityReference,
-            bool allColumns = true)
-        {
-            return orgService.Retrieve(entityReference, new ColumnSet(allColumns));
-        }
-
-        internal static T Retrieve<T>(
-            this IOrganizationService orgService,
-            EntityReference entityReference,
-            params string[] columns)
+        internal static T Retrieve<T>(this IOrganizationService orgService, Entity entity, params string[] columns)
             where T : BaseEntity<T>
         {
-            return orgService.Retrieve(entityReference, columns).As<T>();
+            return orgService.Retrieve<T>(entity, new ColumnSet(columns));
         }
-
-        internal static T Retrieve<T>(
-            this IOrganizationService orgService,
-            EntityReference entityReference,
-            ColumnSet columnSet)
+        internal static T Retrieve<T>(this IOrganizationService orgService, Entity entity, bool allColumns)
             where T : BaseEntity<T>
         {
-            return orgService.Retrieve(entityReference, columnSet).As<T>();
+            return orgService.Retrieve<T>(entity, new ColumnSet(allColumns));
         }
-
-        internal static T Retrieve<T>(
-            this IOrganizationService orgService,
-            EntityReference entityReference,
-            bool allColumns)
+        internal static T Retrieve<T>(this IOrganizationService orgService, Entity entity, Columns columns = Columns.DefinedOnly)
             where T : BaseEntity<T>
         {
-            return orgService.Retrieve(entityReference, allColumns).As<T>();
+            return orgService.Retrieve<T>(entity, GetColumnSet<T>(columns));
         }
 
-        /// <summary>
-        /// Ruft eine Entität aus dem OrganizationService ab, indem eine Entität und die angegebenen Spalten verwendet werden.
-        /// </summary>
-        /// <param name="orgService">Die IOrganizationService-Instanz.</param>
-        /// <param name="entity">Die Entität, die abgerufen werden soll.</param>
-        /// <param name="columns">Ein Array von Spaltennamen, die abgerufen werden sollen.</param>
-        /// <returns>Die abgerufene Entität oder null, wenn die Entität null ist.</returns>
-        internal static Entity Retrieve(
-            this IOrganizationService orgService,
-            Entity entity,
-            params string[] columns)
+        
+
+        internal static T Retrieve<T>(this IOrganizationService orgService, Entity entity, Expression<Func<T, object[]>> propertySelector)
+            where T : BaseEntity<T>
+        {
+            ColumnSet columnSet = GetFromPropertySelector(propertySelector);
+            return orgService.Retrieve<T>(entity, columnSet);
+        }
+        internal static T Retrieve<T>(this IOrganizationService orgService, Entity entity, ColumnSet columnSet)
+            where T : BaseEntity<T>
         {
             if (entity == null)
                 return null;
 
-            return orgService.Retrieve(entity, new ColumnSet(columns));
+            return orgService.Retrieve<T>(entity.ToEntityReference(), columnSet);
         }
 
-        internal static Entity Retrieve(
-            this IOrganizationService orgService,
-            Entity entity,
-            ColumnSet columnSet)
+        internal static T Retrieve<T>(this IOrganizationService orgService, Guid id, params string[] columns)
+            where T : BaseEntity<T>
         {
-            if (entity == null)
+            return orgService.Retrieve<T>(id, new ColumnSet(columns));
+        }
+        internal static T Retrieve<T>(this IOrganizationService orgService, Guid id, bool allColumns)
+            where T : BaseEntity<T>
+        {
+            return orgService.Retrieve<T>(id, new ColumnSet(allColumns));
+        }
+
+        internal static T Retrieve<T>(this IOrganizationService orgService, Guid id, Columns columns = Columns.DefinedOnly)
+            where T : BaseEntity<T>
+        {
+            return orgService.Retrieve<T>(id, GetColumnSet<T>(columns));
+        }
+        internal static T Retrieve<T>(this IOrganizationService orgService, Guid id, Expression<Func<T, object[]>> propertySelector)
+            where T : BaseEntity<T>
+        {
+            ColumnSet columnSet = GetFromPropertySelector(propertySelector);
+            return orgService.Retrieve<T>(id, columnSet);
+        }
+        internal static T Retrieve<T>(this IOrganizationService orgService, Guid id, ColumnSet columnSet)
+            where T : BaseEntity<T>
+        {
+            if (id == null)
                 return null;
 
-            return orgService.Retrieve(entity.ToEntityReference(), columnSet);
-        }
-
-
-        /// <summary>
-        /// Ruft eine Entität aus dem OrganizationService ab, indem eine Entität und eine Option zum Abrufen aller Spalten verwendet werden.
-        /// </summary>
-        /// <param name="orgService">Die IOrganizationService-Instanz.</param>
-        /// <param name="entity">Die Entität, die abgerufen werden soll.</param>
-        /// <param name="allColumns">Gibt an, ob alle Spalten abgerufen werden sollen.</param>
-        /// <returns>Die abgerufene Entität oder null, wenn die Entität null ist.</returns>
-        internal static Entity Retrieve(
-            this IOrganizationService orgService,
-            Entity entity,
-            bool allColumns = true)
-        {
-            if (entity == null)
-                return null;
-
-            return orgService.Retrieve(entity, new ColumnSet(allColumns));
-        }
-
-        internal static T Retrieve<T>(
-            this IOrganizationService orgService,
-            Entity entity,
-            params string[] columns)
-            where T : BaseEntity<T>
-        {
-            return orgService.Retrieve(entity, columns).As<T>();
-        }
-
-        internal static T Retrieve<T>(
-            this IOrganizationService orgService,
-            Entity entity,
-            ColumnSet columnSet)
-            where T : BaseEntity<T>
-        {
-            return orgService.Retrieve(entity, columnSet).As<T>();
-        }
-
-
-        /// <summary>
-        /// Ruft eine Entität aus dem OrganizationService ab, indem eine Entität und eine Option zum Abrufen aller Spalten verwendet werden.
-        /// </summary>
-        /// <param name="orgService">Die IOrganizationService-Instanz.</param>
-        /// <param name="entity">Die Entität, die abgerufen werden soll.</param>
-        /// <param name="allColumns">Gibt an, ob alle Spalten abgerufen werden sollen.</param>
-        /// <returns>Die abgerufene Entität oder null, wenn die Entität null ist.</returns>
-        internal static T Retrieve<T>(
-            this IOrganizationService orgService,
-            Entity entity,
-            bool allColumns = true)
-            where T : BaseEntity<T>
-        {
-            return orgService.Retrieve(entity, allColumns).As<T>();
+            var logicalName = typeof(T).GetLogicalName();
+            return orgService.Retrieve(logicalName, id, columnSet)
+                .As<T>();
         }
 
         /// <summary>
@@ -345,6 +341,84 @@ namespace DataversePluginTemplate.Service
             where T : BaseEntity<T>
         {
             return new QueryContext<T>(orgService);
+        }
+
+        internal static void Update<T>(this IOrganizationService orgService, T entity)
+            where T : BaseEntity<T>
+        {
+            orgService.Update(entity.Entity);
+        }
+
+        internal static void Update<T>(this IOrganizationService orgService, T entity, Expression<Func<T, object[]>> properySelector)
+            where T : BaseEntity<T>
+        {
+            var updateEntity = new Entity(entity.Entity.LogicalName, entity.Id);
+
+            var properties = properySelector.GetPropertyInfos();
+            foreach (var propertyInfo in properties)
+            {
+                var logicalName = propertyInfo.GetLogicalName();
+                updateEntity.Attributes.Add(logicalName, entity.Entity.Attributes[logicalName]);
+            }
+
+            orgService.Update(updateEntity);
+        }
+
+        internal static TOutput SendRequest<TInput, TOutput>(this IOrganizationService orgService, BaseInputModel<TInput> input)
+            where TInput : BaseInputModel<TInput>, new()
+            where TOutput : class, new()
+        {
+            OrganizationRequest request = input.AsRequest();
+
+            var response = orgService.Execute(request);
+            if (response == null)
+                return null;
+
+            var result = new TOutput();
+
+            foreach (var propertyInfo in typeof(TOutput).GetProperties())
+            {
+                var apiParamAttribute = propertyInfo.GetCustomAttribute<APIParameterAttribute>();
+                if (apiParamAttribute == null)
+                    continue;
+
+                if (response.Results.ContainsKey(apiParamAttribute.Name))
+                    propertyInfo.SetValue(result, Convert.ChangeType(response.Results[apiParamAttribute.Name], propertyInfo.PropertyType));
+            }
+
+            return result;
+        }
+
+        private static ColumnSet GetFromPropertySelector<T>(Expression<Func<T, object[]>> propertySelector)
+        {
+            ColumnSet columnSet = new ColumnSet();
+
+            var properties = propertySelector.GetPropertyInfos();
+
+            columnSet.AddColumns(properties
+                .Select(prop => prop.GetLogicalName())
+                .Where(name => name != null)
+                .ToArray());
+
+            return columnSet;
+        }
+
+        private static ColumnSet GetColumnSet<T>(Columns columns) where T : BaseEntity<T>
+        {
+            switch (columns)
+            {
+                case Columns.DefinedOnly:
+                    return new ColumnSet(typeof(T).GetProperties()
+                        .Where(prop => prop.GetCustomAttribute<LogicalNameAttribute>() != null)
+                        .Select(prop => prop.GetCustomAttribute<LogicalNameAttribute>().Name)
+                        .ToArray());
+
+                case Columns.All:
+                    return new ColumnSet(true);
+
+                default:
+                    return new ColumnSet(false);
+            }
         }
     }
 

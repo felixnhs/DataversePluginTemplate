@@ -1,6 +1,7 @@
 using Microsoft.Xrm.Sdk;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Metadata;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -115,6 +116,35 @@ namespace DataversePluginTemplate.Service
             return entityCollection.Entities.As<T>();
         }
 
+        internal static void Update<T>(this BaseEntity<T> entity, PluginContext context, Action<T> configure)
+            where T : BaseEntity<T>
+        {
+            var updateEntity = new Entity(entity.Entity.LogicalName, entity.Id)
+                .As<T>();
+
+            configure(updateEntity);
+
+            context.OrgService.Update(updateEntity.Entity);
+        }
+
+        internal static void Update<T>(this T entity, PluginContext context, Expression<Func<T, object[]>> propertySelector)
+            where T : BaseEntity<T>
+        {
+            var propertyInfos = propertySelector.GetPropertyInfos();
+            if (propertyInfos.Length == 0)
+                return;
+
+            var updateEntity = new Entity(entity.Entity.LogicalName, entity.Id);
+
+            foreach(var property in propertyInfos)
+            {
+                var value = property.GetValue(entity);
+                updateEntity.Attributes.Add(property.GetLogicalName(), value);
+            }
+
+            context.OrgService.Update(updateEntity);
+        }
+
         /// <summary>
         /// Lädt den Logicalname aus dem <see cref="AttributeLogicalNameAttribute"/> der Property aus der Early-Bound Entität.
         /// </summary>
@@ -143,6 +173,20 @@ namespace DataversePluginTemplate.Service
             catch
             {
                 return null;
+            }
+        }
+
+        internal static void SetEntityValue<TEntity, TInput, TProp>(this TEntity entity, Expression<Func<TEntity, TProp>> propertySelector, TInput inputValue, bool? shouldClear)
+            where TEntity : BaseEntity<TEntity>
+        {
+            var propertyInfo = propertySelector.GetPropertyInfo();
+            if (shouldClear == true)
+                propertyInfo.SetValue(entity, null);
+
+            else
+            {
+                if (inputValue != null)
+                    propertyInfo.SetValue(entity, inputValue);
             }
         }
     }
