@@ -1,5 +1,4 @@
-﻿using DataversePluginTemplate.Model;
-using DataversePluginTemplate.Service;
+﻿using DataversePluginTemplate.Service;
 using Microsoft.Xrm.Sdk;
 using System.Collections.Generic;
 using System.Text;

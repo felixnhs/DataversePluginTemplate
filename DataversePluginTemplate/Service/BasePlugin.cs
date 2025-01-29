@@ -1,9 +1,8 @@
-﻿using DataversePluginTemplate.Model;
+﻿using DataversePluginTemplate.Service.API;
+using DataversePluginTemplate.Service.Extensions;
 using Microsoft.Xrm.Sdk;
 using System;
 using System.Diagnostics;
-using System.IdentityModel.Metadata;
-using System.Linq;
 using System.ServiceModel;
 
 namespace DataversePluginTemplate.Service
@@ -147,75 +146,42 @@ namespace DataversePluginTemplate.Service
 
         protected virtual void OnCustomMessage(PluginContext context) { }
 
-        /// <summary>
-        /// Protokolliert eine Nachricht mithilfe des angegebenen Tracing-Dienstes.
-        /// </summary>
-        /// <param name="tracingService">Der Tracing-Dienst zum Protokollieren.</param>
-        /// <param name="message">Die zu protokollierende Nachricht.</param>
+        #region Logging
+
         protected void Log(ITracingService tracingService, string message)
         {
             tracingService.Trace(message);
         }
 
-        /// <summary>
-        /// Protokolliert eine Ausnahme mithilfe des angegebenen Tracing-Dienstes.
-        /// </summary>
-        /// <param name="tracingService">Der Tracing-Dienst zum Protokollieren.</param>
-        /// <param name="ex">Die zu protokollierende Ausnahme.</param>
         protected void Log(ITracingService tracingService, Exception ex)
         {
             Log(tracingService, ex.Message, ex.StackTrace);
         }
 
-        /// <summary>
-        /// Protokolliert eine formatierte Nachricht mithilfe des angegebenen Tracing-Dienstes.
-        /// </summary>
-        /// <param name="tracingService">Der Tracing-Dienst zum Protokollieren.</param>
-        /// <param name="message">Die zu protokollierende Nachricht.</param>
-        /// <param name="args">Die Argumente für die Nachricht.</param>
         protected void Log(ITracingService tracingService, string message, params string[] args)
         {
             tracingService.Trace(message + "{0}", args);
         }
 
-        /// <summary>
-        /// Protokolliert eine Nachricht mithilfe des Tracing-Dienstes des angegebenen Plugin-Kontextes.
-        /// </summary>
-        /// <param name="context">Der Plugin-Kontext.</param>
-        /// <param name="message">Die zu protokollierende Nachricht.</param>
         protected void Log(PluginContext context, string message)
         {
             Log(context.TracingService, message);
         }
 
-        /// <summary>
-        /// Protokolliert eine Ausnahme mithilfe des Tracing-Dienstes des angegebenen Plugin-Kontextes.
-        /// </summary>
-        /// <param name="context">Der Plugin-Kontext.</param>
-        /// <param name="ex">Die zu protokollierende Ausnahme.</param>
         protected void Log(PluginContext context, Exception ex)
         {
             Log(context.TracingService, ex);
         }
 
-        /// <summary>
-        /// Protokolliert eine formatierte Nachricht mithilfe des Tracing-Dienstes des angegebenen Plugin-Kontextes.
-        /// </summary>
-        /// <param name="context">Der Plugin-Kontext.</param>
-        /// <param name="message">Die zu protokollierende Nachricht.</param>
-        /// <param name="args">Die Argumente für die Nachricht.</param>
         protected void Log(PluginContext context, string message, params string[] args)
         {
             Log(context.TracingService, message, args);
         }
 
-
         protected void DebugLog(PluginContext context, string message)
         {
             context.TracingService.DebugLog(message);
         }
-
-
 
         protected void DebugLogEntity(PluginContext context, Entity entity)
         {
@@ -242,7 +208,8 @@ namespace DataversePluginTemplate.Service
             context.TracingService.DebugLogSection();
         }
 
-        
+        #endregion
+
 
         /// <summary>
         /// Führt die angegebene Aktion für das Zielobjekt im Plugin-Kontext aus.

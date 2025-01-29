@@ -1,4 +1,5 @@
-﻿using DataversePluginTemplate.Service;
+﻿using DataversePluginTemplate.Service.Entities;
+using DataversePluginTemplate.Service.Extensions;
 using Microsoft.Xrm.Sdk.Query;
 using System;
 using System.Linq.Expressions;
@@ -288,6 +289,10 @@ namespace DataversePluginTemplate.Queries
         {
             var propertyInfo = ExpressionExtensionMethods.GetPropertyInfo<T, TProperty>(propertySelector);
             var logicalName = propertyInfo.GetLogicalName();
+
+            if (propertyInfo.IsEnumProperty())
+                value = Convert.ToInt32(value);
+
             var condition = new ConditionExpression(logicalName, conditionOperator, value);
             _filterExpression.Conditions.Add(condition);
             return this;

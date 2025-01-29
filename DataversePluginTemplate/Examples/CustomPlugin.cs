@@ -1,5 +1,6 @@
-﻿using DataversePluginTemplate.Model.Enums;
-using DataversePluginTemplate.Service;
+﻿using DataversePluginTemplate.Service;
+using DataversePluginTemplate.Service.Extensions;
+using DataversePluginTemplate.Service.Notification;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using System;
@@ -106,8 +107,7 @@ namespace DataversePluginTemplate.Examples
                         .Columns(pif => new object[] { pif.FlugId })
                         .Alias("Lieblings_Passagiere");
                 })
-                .Execute()
-                .As<Passagier>();
+                .Execute();
 
             foreach (var passagier in passagierListe)
             {

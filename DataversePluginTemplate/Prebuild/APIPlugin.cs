@@ -1,4 +1,6 @@
 ﻿using DataversePluginTemplate.Service;
+using DataversePluginTemplate.Service.API;
+using DataversePluginTemplate.Service.Extensions;
 using Microsoft.Xrm.Sdk;
 using System;
 using System.Linq;

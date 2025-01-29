@@ -1,4 +1,4 @@
-﻿using DataversePluginTemplate.Service;
+﻿using DataversePluginTemplate.Service.Entities;
 using Microsoft.Xrm.Sdk;
 using System;
 
@@ -38,6 +38,10 @@ namespace DataversePluginTemplate.Examples
             get => Get(p => p.Alter);
             set => Set(p => p.Alter, value);
         }
+
+        [Includable]
+        [LogicalName("flugid")]
+        public Flug Flug { get; set; }
 
         public Passagier(Entity entity = null) : base(entity) { }
     }

@@ -84,53 +84,61 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Examples\Flug.cs" />
+    <Compile Include="Examples\Flugzeug.cs" />
+    <Compile Include="Examples\IncludeExamplePlugin.cs" />
     <Compile Include="Examples\Passagier.cs" />
     <Compile Include="Examples\PassagiereImFlug.cs" />
-    <Compile Include="Model\Enums\Internal\Columns.cs" />
-    <Compile Include="Model\Enums\NotificationIcon.cs" />
-    <Compile Include="Model\Enums\NotificationType.cs" />
     <Compile Include="Prebuild\APIPlugin.cs" />
     <Compile Include="Prebuild\EntityPreprocessingPlugin.cs" />
     <Compile Include="Prebuild\ValidationPlugin.cs" />
-    <Compile Include="Service\APIException.cs" />
-    <Compile Include="Service\APIParameterAttribute.cs" />
-    <Compile Include="Service\BaseEntity.cs" />
-    <Compile Include="Service\BaseInputModel.cs" />
-    <Compile Include="Service\EnumExtensionMethods.cs" />
-    <Compile Include="Service\ExpressionExtensionMethods.cs" />
-    <Compile Include="Service\InputExtensionMethods.cs" />
-    <Compile Include="Service\LogicalNameAttribute.cs" />
+    <Compile Include="Queries\Columns.cs" />
+    <Compile Include="Queries\IncludeContext.cs" />
+    <Compile Include="Queries\IncludeEntity.cs" />
+    <Compile Include="Service\API\APIException.cs" />
+    <Compile Include="Service\API\APIParameterAttribute.cs" />
+    <Compile Include="Service\API\BaseInputModel.cs" />
+    <Compile Include="Service\API\ParameterType.cs" />
+    <Compile Include="Service\API\RequestAttribute.cs" />
+    <Compile Include="Service\API\RequiredAttribute.cs" />
+    <Compile Include="Service\Entities\BaseEntity.cs" />
+    <Compile Include="Service\Entities\IncludableAttribute.cs" />
+    <Compile Include="Service\Entities\LogicalNameAttribute.cs" />
+    <Compile Include="Service\Entities\NameAttribute.cs" />
+    <Compile Include="Service\Entities\PrimaryKeyAttribute.cs" />
+    <Compile Include="Service\Extensions\EntityExtensionMethods.cs" />
+    <Compile Include="Service\Extensions\EnumExtensionMethods.cs" />
+    <Compile Include="Service\Extensions\ExpressionExtensionMethods.cs" />
+    <Compile Include="Service\Extensions\InputExtensionMethods.cs" />
+    <Compile Include="Service\Extensions\OrganizationServiceExtensionMethods.cs" />
+    <Compile Include="Service\Extensions\PropertyExtensionMethods.cs" />
+    <Compile Include="Service\Extensions\ServiceProviderExtensionMethods.cs" />
+    <Compile Include="Service\Extensions\TracingServiceExtensionMethods.cs" />
+    <Compile Include="Service\Extensions\TypeExtensionMethods.cs" />
     <Compile Include="Service\BasePlugin.cs" />
     <Compile Include="Examples\CustomGenericPlugin.cs" />
     <Compile Include="Examples\CustomPlugin.cs" />
     <Compile Include="Examples\CustomRenamePlugin.cs" />
-    <Compile Include="Model\PluginExecutionMode.cs" />
-    <Compile Include="Model\PluginMessages.cs" />
-    <Compile Include="Model\PluginStage.cs" />
     <Compile Include="Prebuild\RenamePlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Queries\FilterContext.cs" />
     <Compile Include="Queries\LinkContext.cs" />
     <Compile Include="Queries\QueryContext.cs" />
-    <Compile Include="Service\EntityExtensionMethods.cs" />
-    <Compile Include="Service\NameAttribute.cs" />
-    <Compile Include="Service\Notification.cs" />
-    <Compile Include="Service\OrganizationServiceExtensionMethods.cs" />
-    <Compile Include="Service\ParameterType.cs" />
+    <Compile Include="Service\Notification\Notification.cs" />
+    <Compile Include="Service\Notification\NotificationIcon.cs" />
+    <Compile Include="Service\Notification\NotificationType.cs" />
     <Compile Include="Service\PluginContext.cs" />
+    <Compile Include="Service\PluginExecutionMode.cs" />
+    <Compile Include="Service\PluginMessages.cs" />
+    <Compile Include="Service\PluginStage.cs" />
     <Compile Include="Service\PluginTracingService.cs" />
-    <Compile Include="Service\PrimaryKeyAttribute.cs" />
-    <Compile Include="Service\PropertyExtensionMethods.cs" />
-    <Compile Include="Service\RequestAttribute.cs" />
-    <Compile Include="Service\RequiredAttribute.cs" />
-    <Compile Include="Service\ServiceProviderExtensionMethods.cs" />
-    <Compile Include="Service\TracingServiceExtensionMethods.cs" />
-    <Compile Include="Service\TypeExtensionMethods.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Model\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

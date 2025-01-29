@@ -1,4 +1,5 @@
-﻿using Microsoft.Xrm.Sdk;
+﻿using DataversePluginTemplate.Service.Extensions;
+using Microsoft.Xrm.Sdk;
 using System;
 using System.Text;
 

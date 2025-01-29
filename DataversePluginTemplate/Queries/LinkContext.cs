@@ -1,10 +1,10 @@
-﻿using DataversePluginTemplate.Service;
+﻿using DataversePluginTemplate.Service.Entities;
+using DataversePluginTemplate.Service.Extensions;
 using Microsoft.Xrm.Sdk.Query;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 
 namespace DataversePluginTemplate.Queries
 {
@@ -184,6 +184,29 @@ namespace DataversePluginTemplate.Queries
                 .Where(name => !string.IsNullOrWhiteSpace(name))
                 .ToArray());
 
+            return this;
+        }
+
+        internal LinkContext<TInner, TOuter> Columns(Columns columns)
+        {
+            switch (columns)
+            {
+                case Queries.Columns.All:
+                    return AllColumns(true);
+
+                case Queries.Columns.None:
+                    return AllColumns(false);
+
+                case Queries.Columns.DefinedOnly:
+                    return AllDefinedColumns();
+            }
+
+            return this;
+        }
+
+        internal LinkContext<TInner, TOuter> AllDefinedColumns()
+        {
+            _linkEntity.Columns.AddColumns(typeof(TOuter).GetAllDefinedLogicalNames());
             return this;
         }
 

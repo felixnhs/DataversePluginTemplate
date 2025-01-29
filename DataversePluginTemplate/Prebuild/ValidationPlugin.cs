@@ -49,7 +49,7 @@ namespace DataversePluginTemplate.Prebuild
         /// </remarks>
         protected sealed override void OnCreate(PluginContext context, Entity entity)
         {
-            if (context.PluginStage == Model.PluginStage.PreValidation)
+            if (context.PluginStage == PluginStage.PreValidation)
                 Validate(context, entity);
         }
 

@@ -78,7 +78,7 @@ namespace DataversePluginTemplate.Prebuild
         /// <param name="entity">Die <see cref="Entity"/>, die verarbeitet wird.</param>
         private void ProcessInternal(PluginContext context, Entity entity)
         {
-            if (context.PluginStage != Model.PluginStage.PreOperation)
+            if (context.PluginStage != PluginStage.PreOperation)
                 return;
 
             // Ruft die Process-Methode auf und erhält eine Aufzählung von Attributsname-Wert-Paaren.

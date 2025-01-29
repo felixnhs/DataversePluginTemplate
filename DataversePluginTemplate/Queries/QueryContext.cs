@@ -1,4 +1,5 @@
-﻿using DataversePluginTemplate.Service;
+﻿using DataversePluginTemplate.Service.Entities;
+using DataversePluginTemplate.Service.Extensions;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using System;
@@ -153,6 +154,8 @@ namespace DataversePluginTemplate.Queries
         // Der Ausdruck, der die Abfrage definiert, die gegen das CRM-System ausgeführt werden soll.
         private readonly QueryExpression _expression;
 
+        private readonly List<IncludeEntity> _includes = new List<IncludeEntity>();
+
         /// <summary>
         /// Initialisiert eine neue Instanz des QueryContext für die angegebene Entität mit dem angegebenen Organisationsservice.
         /// </summary>
@@ -177,6 +180,29 @@ namespace DataversePluginTemplate.Queries
                 .Where(name => !string.IsNullOrWhiteSpace(name))
                 .ToArray());
 
+            return this;
+        }
+
+        internal QueryContext<T> Columns(Columns columns)
+        {
+            switch (columns)
+            {
+                case Queries.Columns.All:
+                    return AllColumns(true);
+
+                case Queries.Columns.None:
+                    return AllColumns(false);
+
+                case Queries.Columns.DefinedOnly:
+                    return AllDefinedColumns();
+            }
+
+            return this;
+        }
+
+        internal QueryContext<T> AllDefinedColumns()
+        {
+            _expression.ColumnSet.AddColumns(typeof(T).GetAllDefinedLogicalNames());
             return this;
         }
 
@@ -291,13 +317,83 @@ namespace DataversePluginTemplate.Queries
             return this;
         }
 
+        internal QueryContext<T> Include<TOuter>(Expression<Func<T, TOuter>> includePropertySelector, Action<IncludeContext<T, TOuter>> configureInclude)
+           where TOuter : BaseEntity<TOuter>
+        {
+            return Include<TOuter>(includePropertySelector, JoinOperator.LeftOuter, configureInclude);
+        }
+
+        internal QueryContext<T> Include<TOuter>(Expression<Func<T, TOuter>> includePropertySelector, JoinOperator joinOperator, Action<IncludeContext<T, TOuter>> configureInclude)
+            where TOuter : BaseEntity<TOuter>
+        {
+            var entityName = typeof(TOuter).GetLogicalName();
+            var targetProperty = includePropertySelector.GetPropertyInfo();
+            var fromColumn = targetProperty.GetLogicalName();
+            var toColumn = typeof(TOuter).GetPrimaryKeyName();
+
+            var includeEntity = new IncludeEntity(typeof(TOuter), entityName, fromColumn, targetProperty);
+            var linkEntity = new LinkEntity(_expression.EntityName, entityName, fromColumn, toColumn, joinOperator);
+            var includeContext = new IncludeContext<T, TOuter>(linkEntity, includeEntity);
+            configureInclude(includeContext);
+            _expression.LinkEntities.Add(linkEntity);
+
+            _includes.Add(includeEntity);
+            _expression.ColumnSet.AddColumn(fromColumn);
+
+            return this;
+        }
+
         /// <summary>
         /// Führt die konfigurierte Abfrage aus und gibt die Ergebnisse als <see cref="EntityCollection"/> zurück.
         /// </summary>
         /// <returns>Die <see cref="EntityCollection"/>, die die Ergebnisse der Abfrage enthält.</returns>
-        internal EntityCollection Execute()
+        internal IEnumerable<T> Execute()
         {
-            return _orgService.RetrieveMultiple(_expression);
+            var queryResults = _orgService.RetrieveMultiple(_expression).As<T>();
+
+            if (!_includes.Any())
+                return queryResults;
+
+            foreach (var entity in queryResults)
+                ProcessIncludes(_includes, entity, entity, entity.Entity);
+
+            return queryResults;
+        }
+
+        private void ProcessIncludes(List<IncludeEntity> includes, T sourceEntity, object target, Entity targetEntity)
+        {
+            foreach (var link in includes)
+            {
+                var constructor = link.EntityType.GetConstructor(new Type[] { typeof(Entity) });
+                if (constructor == null)
+                    return;
+
+                if (link.TargetProperty.GetCustomAttribute<IncludableAttribute>() == null)
+                    continue;
+
+
+                if (!targetEntity.TryGetAttributeValue<EntityReference>(link.LookupLogicalName, out var lookupER))
+                    if (!targetEntity.TryGetAttributeValue<EntityReference>($"{link.EntityAlias}.{link.LookupLogicalName}", out lookupER))
+                        continue;
+
+                var remAttributes = new List<string>();
+                var joinedEntity = new Entity(link.EntityLogicalName, lookupER.Id);
+                foreach (var attr in sourceEntity.Entity.Attributes.Where(a => a.Value is AliasedValue alias && alias.EntityLogicalName == link.EntityLogicalName && a.Key.StartsWith(link.EntityAlias)))
+                {
+                    var alias = (AliasedValue)attr.Value;
+                    joinedEntity.Attributes.Add(alias.AttributeLogicalName, alias.Value);
+                    remAttributes.Add(attr.Key);
+                }
+
+                foreach (var remName in remAttributes)
+                    sourceEntity.Entity.Attributes.Remove(remName);
+
+                var includedEntity = constructor.Invoke(new object[] { joinedEntity });
+                link.TargetProperty.SetValue(target, includedEntity);
+
+                if (link.InnerIncludes.Any())
+                    ProcessIncludes(link.InnerIncludes, sourceEntity, includedEntity, joinedEntity);
+            }
         }
     }
 

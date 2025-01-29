@@ -1,4 +1,4 @@
-﻿using DataversePluginTemplate.Service;
+﻿using DataversePluginTemplate.Service.Entities;
 using Microsoft.Xrm.Sdk;
 
 namespace DataversePluginTemplate.Examples
