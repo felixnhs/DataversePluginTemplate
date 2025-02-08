@@ -9,6 +9,9 @@ Template für ein Microsoft Dynamics 365 Dataverse Plugin VS Projekt.
 
 ### Verwendung
 
+> [!IMPORTANT]  
+> The features have been updated through the latest changes. While the base concept remails the same, the documentation currently does not reflect the actual usage. Refer to the examples included in the template to get more recent usage examples.
+
 Das Template bietet viele Grundfunktionen, die das Erstellen von Dataverse Plugins vereinfachen. Wie diese am besten verwendet werden, ist in den Beispielen im Template zu sehen, oder hier beschrieben.
 
 #### Basisklasse für Plugins
