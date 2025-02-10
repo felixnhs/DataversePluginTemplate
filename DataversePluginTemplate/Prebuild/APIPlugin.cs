@@ -8,12 +8,6 @@ using System.Reflection;
 
 namespace DataversePluginTemplate.Prebuild
 {
-    /// <summary>
-    /// Basisklasse für Plugins, die als Custom API registriert werden.
-    /// Die Basisklasse validiert den Input der Request und gibt diesen an die API-Klasse weiter
-    /// </summary>
-    /// <typeparam name="TInputModel">Input Datenmodell</typeparam>
-    /// <typeparam name="TOutputModel">Output Datenmodell</typeparam>
     public abstract class APIPlugin<TInputModel, TOutputModel> : BasePlugin
         where TInputModel : BaseInputModel<TInputModel>, new()
         where TOutputModel : class, new()
@@ -42,15 +36,19 @@ namespace DataversePluginTemplate.Prebuild
 
             if (context.ExecutionContext.MessageName != _MessageName)
             {
-                Log(context, $"Unexpected Message [{context.ExecutionContext.MessageName}]");
+                context.TracingService.Trace($"Unexpected Message [{context.ExecutionContext.MessageName}]");
                 throw new APIException(PluginHttpStatusCode.NotFound);
             }
 
+#if DEBUG
             DebugLogInput(context);
+#endif
 
             if (!BaseInputModel<TInputModel>.TryParse(context, out TInputModel inputModel))
             {
-                DebugLog(context, $"Error validatin Input");
+#if DEBUG
+                context.TracingService.DebugLog($"Error validatin Input");
+#endif
                 throw new APIException(PluginHttpStatusCode.BadRequest, "Invalid Input");
             }
 
@@ -60,7 +58,9 @@ namespace DataversePluginTemplate.Prebuild
 
             SetOutputParameter(context, outputModel);
 
+#if DEBUG
             DebugLogOutput(context);
+#endif
         }
 
         /// <summary>
@@ -82,31 +82,29 @@ namespace DataversePluginTemplate.Prebuild
 
         #region Logging
 
+#if DEBUG
         protected void DebugLogInput(PluginContext context)
         {
-#if DEBUG
             context.TracingService.DebugLogSeparator("Inputs");
-            DebugLog(context, context.ExecutionContext.InputParameters.Aggregate("Keys: ", (acc, cur) => acc += $";{cur.Key}"));
+            context.TracingService.DebugLog(context.ExecutionContext.InputParameters.Aggregate("Keys: ", (acc, cur) => acc += $";{cur.Key}"));
 
             foreach (var inputParameter in context.ExecutionContext.InputParameters)
-                DebugLog(context, $"Key: {inputParameter.Key}; Type: {inputParameter.Value?.GetType().Name}; Value: {TracingServiceExtensionMethods.GetValueString(inputParameter.Value)}");
+                context.TracingService.DebugLog($"Key: {inputParameter.Key}; Type: {inputParameter.Value?.GetType().Name}; Value: {TracingServiceExtensionMethods.GetValueString(inputParameter.Value)}");
 
-            DebugLogSection(context);
-#endif
+            context.TracingService.DebugLogSection();
         }
 
         protected void DebugLogOutput(PluginContext context)
         {
-#if DEBUG
             context.TracingService.DebugLogSeparator("Ouputs");
-            DebugLog(context, context.ExecutionContext.OutputParameters.Aggregate("Keys: ", (acc, cur) => acc += $";{cur.Key}"));
+            context.TracingService.DebugLog(context.ExecutionContext.OutputParameters.Aggregate("Keys: ", (acc, cur) => acc += $";{cur.Key}"));
 
             foreach (var outputParameter in context.ExecutionContext.OutputParameters)
-                DebugLog(context, $"Key: {outputParameter.Key}; Type: {outputParameter.Value?.GetType().Name}; Value: {TracingServiceExtensionMethods.GetValueString(outputParameter.Value)}");
+                context.TracingService.DebugLog($"Key: {outputParameter.Key}; Type: {outputParameter.Value?.GetType().Name}; Value: {TracingServiceExtensionMethods.GetValueString(outputParameter.Value)}");
 
-            DebugLogSection(context);
-#endif
+            context.TracingService.DebugLogSection();
         }
+#endif
 
         #endregion
 

@@ -13,19 +13,8 @@ using System.Reflection;
 
 namespace DataversePluginTemplate.Service.Extensions
 {
-    /// <summary>
-    /// Erweiterungsmethoden für die Arbeit mit der IOrganizationService-Schnittstelle.
-    /// </summary>
     internal static class OrganizationServiceExtensionMethods
     {
-        /// <summary>
-        /// Führt mehrere Anfragen des angegebenen Typs TRequest aus.
-        /// </summary>
-        /// <typeparam name="TRequest">Der Typ der Anfrage, der von OrganizationRequest erben muss.</typeparam>
-        /// <param name="orgService">Die IOrganizationService-Instanz.</param>
-        /// <param name="requests">Eine Auflistung von Anfragen, die ausgeführt werden sollen.</param>
-        /// <param name="configureRequest">Eine optionale Aktion, um das ExecuteMultipleRequest-Objekt zu konfigurieren.</param>
-        /// <returns>Die Antwort des OrganizationService nach der Ausführung der Anfragen.</returns>
         internal static ExecuteMultipleResponse ExecuteMultiple<TRequest>(
             this IOrganizationService orgService,
             IEnumerable<TRequest> requests,
@@ -43,16 +32,6 @@ namespace DataversePluginTemplate.Service.Extensions
             return (ExecuteMultipleResponse)orgService.Execute(executeMultiRequest);
         }
 
-        /// <summary>
-        /// Führt mehrere Anfragen des angegebenen Typs TRequest aus, die aus Elementen vom Typ TItem erstellt wurden.
-        /// </summary>
-        /// <typeparam name="TRequest">Der Typ der Anfrage, der von OrganizationRequest erben und einen parameterlosen Konstruktor haben muss.</typeparam>
-        /// <typeparam name="TItem">Der Typ der Elemente, die zur Erstellung und Konfiguration der Anfragen verwendet werden.</typeparam>
-        /// <param name="orgService">Die IOrganizationService-Instanz.</param>
-        /// <param name="requestItems">Eine Auflistung von Elementen, aus denen die Anfragen erstellt und konfiguriert werden.</param>
-        /// <param name="configureRequestItem">Eine Aktion, um jede Anfrage aus einem Element zu konfigurieren.</param>
-        /// <param name="configureRequest">Eine optionale Aktion, um das ExecuteMultipleRequest-Objekt zu konfigurieren.</param>
-        /// <returns>Die Antwort des OrganizationService nach der Ausführung der Anfragen.</returns>
         internal static ExecuteMultipleResponse ExecuteMultiple<TRequest, TItem>(
             this IOrganizationService orgService,
             IEnumerable<TItem> requestItems,
@@ -72,13 +51,6 @@ namespace DataversePluginTemplate.Service.Extensions
             return orgService.ExecuteMultiple<TRequest>(requests, configureRequest);
         }
 
-        /// <summary>
-        /// Erstellt mehrere Entitäten im OrganizationService.
-        /// </summary>
-        /// <param name="orgService">Die IOrganizationService-Instanz.</param>
-        /// <param name="entities">Eine Auflistung von Entitäten, die erstellt werden sollen.</param>
-        /// <param name="configureRequest">Eine optionale Aktion, um das ExecuteMultipleRequest-Objekt zu konfigurieren.</param>
-        /// <returns>Die Antwort des OrganizationService nach dem Erstellen der Entitäten.</returns>
         internal static ExecuteMultipleResponse CreateMultiple(
             this IOrganizationService orgService,
         IEnumerable<Entity> entities,
@@ -90,12 +62,6 @@ namespace DataversePluginTemplate.Service.Extensions
             }, configureRequest);
         }
 
-        /// <summary>
-        /// Erstellt mehrere Entitäten im OrganizationService mit Standardeinstellungen.
-        /// </summary>
-        /// <param name="orgService">Die IOrganizationService-Instanz.</param>
-        /// <param name="entities">Eine Auflistung von Entitäten, die erstellt werden sollen.</param>
-        /// <returns>Die Antwort des OrganizationService nach dem Erstellen der Entitäten.</returns>
         internal static ExecuteMultipleResponse CreateMultiple(
             this IOrganizationService orgService,
             IEnumerable<Entity> entities)
@@ -107,13 +73,6 @@ namespace DataversePluginTemplate.Service.Extensions
             });
         }
 
-        /// <summary>
-        /// Aktualisiert mehrere Entitäten im OrganizationService.
-        /// </summary>
-        /// <param name="orgService">Die IOrganizationService-Instanz.</param>
-        /// <param name="entities">Eine Auflistung von Entitäten, die aktualisiert werden sollen.</param>
-        /// <param name="configureRequest">Eine optionale Aktion, um das ExecuteMultipleRequest-Objekt zu konfigurieren.</param>
-        /// <returns>Die Antwort des OrganizationService nach der Aktualisierung der Entitäten.</returns>
         internal static ExecuteMultipleResponse UpdateMultiple(
             this IOrganizationService orgService,
         IEnumerable<Entity> entities,
@@ -125,12 +84,6 @@ namespace DataversePluginTemplate.Service.Extensions
             }, configureRequest);
         }
 
-        /// <summary>
-        /// Aktualisiert mehrere Entitäten im OrganizationService mit Standardeinstellungen.
-        /// </summary>
-        /// <param name="orgService">Die IOrganizationService-Instanz.</param>
-        /// <param name="entities">Eine Auflistung von Entitäten, die aktualisiert werden sollen.</param>
-        /// <returns>Die Antwort des OrganizationService nach der Aktualisierung der Entitäten.</returns>
         internal static ExecuteMultipleResponse UpdateMultiple(
             this IOrganizationService orgService,
             IEnumerable<Entity> entities)
@@ -142,13 +95,6 @@ namespace DataversePluginTemplate.Service.Extensions
             });
         }
 
-        /// <summary>
-        /// Löscht mehrere Entitäten im OrganizationService.
-        /// </summary>
-        /// <param name="orgService">Die IOrganizationService-Instanz.</param>
-        /// <param name="entityReferences">Eine Auflistung von Entitätsreferenzen, die gelöscht werden sollen.</param>
-        /// <param name="configureRequest">Eine optionale Aktion, um das ExecuteMultipleRequest-Objekt zu konfigurieren.</param>
-        /// <returns>Die Antwort des OrganizationService nach dem Löschen der Entitäten.</returns>
         internal static ExecuteMultipleResponse DeleteMultiple(
             this IOrganizationService orgService,
             IEnumerable<EntityReference> entityReferences,
@@ -160,12 +106,6 @@ namespace DataversePluginTemplate.Service.Extensions
             }, configureRequest);
         }
 
-        /// <summary>
-        /// Löscht mehrere Entitäten im OrganizationService mit Standardeinstellungen.
-        /// </summary>
-        /// <param name="orgService">Die IOrganizationService-Instanz.</param>
-        /// <param name="entityReferences">Eine Auflistung von Entitätsreferenzen, die gelöscht werden sollen.</param>
-        /// <returns>Die Antwort des OrganizationService nach dem Löschen der Entitäten.</returns>
         internal static ExecuteMultipleResponse DeleteMultiple(
             this IOrganizationService orgService,
             IEnumerable<EntityReference> entityReferences)
@@ -176,6 +116,8 @@ namespace DataversePluginTemplate.Service.Extensions
                 configure.Settings.ReturnResponses = true;
             });
         }
+
+        #region Retrieve Entities
 
         internal static Entity Retrieve(this IOrganizationService orgService, EntityReference entityReference, params string[] columns)
         {
@@ -320,12 +262,9 @@ namespace DataversePluginTemplate.Service.Extensions
                 .As<T>();
         }
 
-        /// <summary>
-        /// Initialisiert einen Abfragekontext für den angegebenen Entitätsnamen.
-        /// </summary>
-        /// <param name="orgService">Die IOrganizationService-Instanz.</param>
-        /// <param name="entityName">Der logische Name der Entität, die abgefragt werden soll.</param>
-        /// <returns>Ein QueryContext-Objekt zur Erstellung und Ausführung von Abfragen.</returns>
+        #endregion
+
+
         internal static QueryContext Select(
             this IOrganizationService orgService,
             string entityName)
@@ -333,12 +272,6 @@ namespace DataversePluginTemplate.Service.Extensions
             return new QueryContext(orgService, entityName);
         }
 
-        /// <summary>
-        /// Erstellt und initialisiert einen Abfragekontext für den angegebenen Entitätstyp T.
-        /// </summary>
-        /// <typeparam name="T">Der Typ der Entität, für die die Abfrage erstellt werden soll.</typeparam>
-        /// <param name="orgService">Die IOrganizationService-Instanz, die für die Kommunikation mit dem CRM-System verwendet wird.</param>
-        /// <returns>Ein QueryContext-Objekt, das für die Erstellung und Ausführung von Abfragen verwendet werden kann.</returns>
         internal static QueryContext<T> Select<T>(this IOrganizationService orgService)
             where T : BaseEntity<T>
         {

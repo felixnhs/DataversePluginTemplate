@@ -7,16 +7,6 @@ using System.Text.RegularExpressions;
 
 namespace DataversePluginTemplate.Service.API
 {
-    /// <summary>
-    /// Die Basisklasse für einen API-Input. Die Basisklasse stellt Funktionen bereit, um den Input aus dem <see cref="PluginContext"/>
-    /// zu verarbeiten.
-    /// Verwendung:
-    /// <code>
-    /// var valid = BaseInputModel<CHILD_KLASSE>.TryParse(pluginKontext, out var inputModel);
-    /// </code>
-    /// Kann auch direkt mit der Child-Klasse verwendet werden.
-    /// </summary>
-    /// <typeparam name="TInput"></typeparam>
     public abstract class BaseInputModel<TInput>
         where TInput : BaseInputModel<TInput>, new()
     {
@@ -33,7 +23,7 @@ namespace DataversePluginTemplate.Service.API
             if (context.ExecutionContext.InputParameters == null)
                 return false;
 
-            // null Parameter entfernen
+            // Remove null parameters
             for (int i = context.ExecutionContext.InputParameters.Count - 1; i >= 0; i--)
             {
                 var element = context.ExecutionContext.InputParameters.ElementAt(i);
@@ -254,7 +244,7 @@ namespace DataversePluginTemplate.Service.API
                 if (isRequired)
                     return false;
 
-                // Wenn nicht required, dann default Wert durch null austauschen
+                // If not required, replace default value by null
                 property.SetValue(inputModel, null);
             }
             else
