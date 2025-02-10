@@ -5,10 +5,6 @@ using System.Linq.Expressions;
 
 namespace DataversePluginTemplate.Service.Entities
 {
-    /// <summary>
-    /// Abstrakte Basisklasse für Entitäten im CRM-System.
-    /// </summary>
-    /// <typeparam name="TChild">Der abgeleitete Typ der Entität.</typeparam>
     internal abstract class BaseEntity<TChild>
     {
         private readonly Entity _entity;
@@ -17,10 +13,6 @@ namespace DataversePluginTemplate.Service.Entities
 
         internal Guid Id { get => _entity.Id; set => _entity.Id = value; }
 
-        /// <summary>
-        /// Initialisiert eine neue Instanz der BaseEntity mit der angegebenen CRM-Entität.
-        /// </summary>
-        /// <param name="entity">Die CRM-Entität, die die Daten enthält.</param>
         internal BaseEntity(Entity entity = null)
         {
             if (entity != null)
@@ -29,13 +21,6 @@ namespace DataversePluginTemplate.Service.Entities
                 _entity = new Entity(typeof(TChild).GetLogicalName());
         }
 
-        /// <summary>
-        /// Setzt den Wert einer Eigenschaft der Entität basierend auf dem Property-Expression und dem neuen Wert.
-        /// </summary>
-        /// <typeparam name="TProperty">Der Typ der Eigenschaft.</typeparam>
-        /// <typeparam name="TValue">Der Typ des neuen Werts.</typeparam>
-        /// <param name="propertyExpression">Lambda-Ausdruck, der die Eigenschaft auswählt.</param>
-        /// <param name="value">Der neue Wert, der gesetzt werden soll.</param>
         public void Set<TProperty, TValue>(Expression<Func<TChild, TProperty>> propertyExpression, TValue value)
         {
             var property = propertyExpression.GetPropertyInfo();
@@ -43,13 +28,6 @@ namespace DataversePluginTemplate.Service.Entities
             _entity.Attributes[logicalName] = value;
         }
 
-        /// <summary>
-        /// Ruft den Wert einer Eigenschaft der Entität basierend auf dem Property-Expression ab.
-        /// </summary>
-        /// <typeparam name="TProperty">Der Typ der Eigenschaft.</typeparam>
-        /// <typeparam name="TValue">Der Typ des zurückgegebenen Werts.</typeparam>
-        /// <param name="propertyExpression">Lambda-Ausdruck, der die Eigenschaft auswählt.</param>
-        /// <returns>Der Wert der ausgewählten Eigenschaft.</returns>
         public TProperty Get<TProperty>(Expression<Func<TChild, TProperty>> propertyExpression)
         {
             var property = propertyExpression.GetPropertyInfo();

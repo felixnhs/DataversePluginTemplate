@@ -7,15 +7,6 @@ namespace DataversePluginTemplate.Service.Extensions
 {
     internal static class ExpressionExtensionMethods
     {
-        /// <summary>
-        /// Ruft die PropertyInfo einer durch einen Lambda-Ausdruck spezifizierten Eigenschaft ab.
-        /// </summary>
-        /// <typeparam name="TType">Der Typ, der die Eigenschaft enthält.</typeparam>
-        /// <typeparam name="TProperty">Der Typ der Eigenschaft.</typeparam>
-        /// <param name="propertySelector">Lambda-Ausdruck, der die Eigenschaft spezifiziert.</param>
-        /// <returns>Das PropertyInfo-Objekt, das die angegebene Eigenschaft darstellt.</returns>
-        /// <exception cref="ArgumentException">Ausnahme, die ausgelöst wird, wenn der Ausdruck keine MemberExpression ist.</exception>
-        /// <exception cref="Exception">Ausnahme, die ausgelöst wird, wenn der ReflectedType der Eigenschaft nicht mit TType übereinstimmt oder von diesem abgeleitet ist.</exception>
         internal static PropertyInfo GetPropertyInfo<TType, TProperty>(this Expression<Func<TType, TProperty>> propertySelector)
         {
             if (propertySelector.Body is MemberExpression memberExpression)
@@ -40,12 +31,6 @@ namespace DataversePluginTemplate.Service.Extensions
                 throw new ArgumentException("Invalid Expression");
         }
 
-        /// <summary>
-        /// Ruft die PropertyInfo aus einem MemberExpression ab, der eine Eigenschaft darstellt.
-        /// </summary>
-        /// <param name="memberExpression">MemberExpression, der eine Eigenschaft darstellt.</param>
-        /// <returns>Das PropertyInfo-Objekt, das die Eigenschaft darstellt.</returns>
-        /// <exception cref="ArgumentException">Ausnahme, die ausgelöst wird, wenn das Member keine Eigenschaft ist.</exception>
         internal static PropertyInfo GetPropertyInfo(this MemberExpression memberExpression)
         {
             if (!(memberExpression.Member is PropertyInfo propInfo))

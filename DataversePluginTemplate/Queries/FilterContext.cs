@@ -6,17 +6,10 @@ using System.Linq.Expressions;
 
 namespace DataversePluginTemplate.Queries
 {
-    /// <summary>
-    /// Stellt Methoden bereit, um Bedingungsausdrücke zur Filterung in einer FilterExpression zu konfigurieren.
-    /// </summary>
     internal sealed class FilterContext
     {
         private readonly FilterExpression _filterExpression;
 
-        /// <summary>
-        /// Initialisiert eine neue Instanz des FilterContext mit der angegebenen FilterExpression.
-        /// </summary>
-        /// <param name="filterExpression">Die FilterExpression, die konfiguriert werden soll.</param>
         internal FilterContext(FilterExpression filterExpression)
         {
             _filterExpression = filterExpression;
@@ -117,12 +110,6 @@ namespace DataversePluginTemplate.Queries
 
         #endregion
 
-        /// <summary>
-        /// Fügt der Abfrage Bedingungen mit dem angegebenen logischen Operator hinzu.
-        /// </summary>
-        /// <param name="logicalOperator">Der logische Operator, der für die Bedingung verwendet wird.</param>
-        /// <param name="configureFilter">Eine Aktion, die den Filter konfiguriert.</param>
-        /// <returns>Die aktuelle Instanz der <see cref="FilterContext"/> zur Verkettung weiterer Methodenaufrufe.</returns>
         internal FilterContext Conditions(LogicalOperator logicalOperator, Action<FilterContext> configureFilter)
         {
             var filterExpression = new FilterExpression(logicalOperator);
@@ -134,13 +121,6 @@ namespace DataversePluginTemplate.Queries
             return this;
         }
 
-        /// <summary>
-        /// Fügt eine Bedingung mit dem angegebenen Spaltennamen, Wert und Bedingungsoperator zur FilterExpression hinzu.
-        /// </summary>
-        /// <param name="columnName">Der Name der Spalte, auf die die Bedingung angewendet wird.</param>
-        /// <param name="value">Der Wert, mit dem die Bedingung verglichen wird.</param>
-        /// <param name="conditionOperator">Der Operator, der angibt, wie die Bedingung ausgewertet wird.</param>
-        /// <returns>Eine Instanz von FilterContext für method chaining.</returns>
         private FilterContext HandleInternal(string columnName, object value, ConditionOperator conditionOperator)
         {
             var condition = new ConditionExpression(columnName, conditionOperator, value);
@@ -161,10 +141,6 @@ namespace DataversePluginTemplate.Queries
     {
         private readonly FilterExpression _filterExpression;
 
-        /// <summary>
-        /// Initialisiert eine neue Instanz des FilterContext mit der angegebenen FilterExpression.
-        /// </summary>
-        /// <param name="filterExpression">Die FilterExpression, die konfiguriert werden soll.</param>
         internal FilterContext(FilterExpression filterExpression)
         {
             _filterExpression = filterExpression;
