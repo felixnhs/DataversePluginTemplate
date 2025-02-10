@@ -1,184 +1,286 @@
 # DataversePluginTemplate
-Template für ein Microsoft Dynamics 365 Dataverse Plugin VS Projekt.
 
-### Installation
+This is a Visual Studio C# project template designed to streamline the development of Microsoft Dynamics 365 (D365) Plugins (see [official docs](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/plug-ins)). By using this template, developers can quickly set up a well-structured plugin project with best practices, necessary dependencies, and boilerplate code to accelerate development.
 
-1. Lade die Template Zip-Datei herunter.
-2. Füge die Datei in das Vorlagen-Verzeichnis von Visual Studio hinzu. Es ist gewöhnlich unter `C:\Users\<BENUTZER>\Documents\Visual Studio 2022\Templates\C#\`. Das genaue Verzeichnis kann je nach Visual Studio Version variieren.
-3. Erstelle ein neues Projekt und wähle *DataversePluginTemplate* aus.
+Key Features:<br>
+✅ Pre-configured project structure tailored for Dynamics 365 plugin and API development<br>
+✅ Includes essential NuGet packages like `Microsoft.CrmSdk.CoreAssemblies`<br>
+✅ Supports custom hybrid-bound entity development<br>
+✅ Streamlines fetching and handeling entities<br>
+✅ Compatible with Visual Studio and Power Platform tooling
 
-### Verwendung
+This template is ideal for Dynamics 365 consultants, developers, and teams looking to standardize their plugin development process while reducing setup time.
 
-> [!IMPORTANT]  
-> The features have been updated through the latest changes. While the base concept remails the same, the documentation currently does not reflect the actual usage. Refer to the examples included in the template to get more recent usage examples.
+## 🚀 Installation
 
-Das Template bietet viele Grundfunktionen, die das Erstellen von Dataverse Plugins vereinfachen. Wie diese am besten verwendet werden, ist in den Beispielen im Template zu sehen, oder hier beschrieben.
+### Prerequisites
 
-#### Basisklasse für Plugins
+Before using this template, ensure you have the following installed:
 
-Da jedes Dataverse Plugin die `IPlugin` Schnittstelle implementieren muss, bietet die Basisklasse `BasePlugin`, und ihe generische Alternative, einen Einstiegspunkt für die Dataverse Funktionen. Die gängisten Events, die von Dataverse ausgelöst werden, stehen als überschreibbare Funktionen zu Verfügung. 
-Dazu zählen
-- `Create`, Erstellung eines Datensatzes im Dataverse.
-- `Update`, Aktualisieren eines Datensatzes im Dataverse.
-- `Delete`, Löschen eines Datensatzes im Dataverse.
-- `Associate`, Einen Datensatz mit einer n:m Beziehung an einen anderen Datensatz verbinden.
-- `Disassociate`, Die n:m Beziehung eines Datensatzes zu einem anderen aufheben.
+- [Visual Studio](https://visualstudio.microsoft.com/) (2022 recommended)
+- [.NET Framework](https://dotnet.microsoft.com/en-us/download/dotnet-framework) (matching the target Dynamics 365 version)
+- [NuGet Package Manager](https://www.nuget.org/) 
 
-Um von den Funktionen gebrauch zu machen, muss dein Plugin von der Basisklasse erben.
+### Steps to Install the Template
+
+#### Import Template into VS (recommended)
+
+1. Download the zip file from the latest release.
+2. Move or copy the file into your VS-templates directory.
+s
+## 🎯 Usage
+
+### Creating a New Plugin Project
+
+1. Open Visual Studio and go to File > New > Project.
+2. Search for "DataversePluginTemplate" in the template list.
+3. Select the template and click Next.
+4. Configure project details (name, location, framework version).
+5. Click Create to generate the project.
+
+### Registering the Plugin in Dynamics 365
+
+1. Build the project (Ctrl+Shift+B in Visual Studio).
+2. Sign the assembly (set up a strong-name key in project properties).
+3. Use the Plugin Registration Tool:
+    - Connect to your D365 instance.
+    - Register the assembly.
+    - Add plugin steps for execution.
+4. Test in Dynamics 365 by triggering the relevant entity event.
+
+## ✨ Features
+
+### Base functions for plugins
+
+Every Dataverse plugin has to implement the `IPlugin` interface and set up everything itself inside the _execute_ function. The template's `BasePlugin` class provides a complete base for each plugin. It allows you to overwrite specific methods, which only execute on specific Dataverse events, and gain all the relevant data already handed into the function.
+The _BasePlugin_ sets up all the services and inputs, and hands them to your plugin.
 
 ```c#
-public class MyPlugin : BasePlugin, IPlugin
+public class MyPlugin : BasePlugin, IPlugin 
 {
-    public MyPlugin() : base(nameof(MyPlugin)) { }
-
-    protected override void OnCreate(PluginContext context, Entity entity)
+    protected override void OnCreate(PluginContext context, Entity entity) 
     {
-        // Dein Code hier...
+        // Your plugin implementation...   
     }
 }
 ```
 
-Dein Plugin muss den Konstuktor der Basisklasse aufrufen. Übergig den Namen deines Plugins, damit dieser in den Logs auftaucht.
-<br>
-Wenn du eine Methode überschreibst, bekommst du den *PluginContext* und die *Entity*, bzw. die Referenz, übergeben.
+The `PluginContext` contains all the relevant services for the plugins executions, which usually need to be manually set up through the _IServiceProvider_.
+The _BasePlugin_ also already extracts the input _Entity_ or _EntityReference_ (depending on the Dataverse event), and hands them to you plugin while also checking that the input is actually present.
 
-#### PluginContext
+The _BasePlugin_ wraps your plugins functions in a try-catch block, which prevents errors that Dataverse can't handle. You can still throw a _InvalidPluginExecutionException_.
 
-Bei der Ausführung eines Plugins wird nur der *ServiceProvider* übergeben. Die Basisklasse ruft die wichtigsten Dienste daraus ab und übergibt sie gebündelt an deine Funktion weiter.
-<br>
-Hier findest du auch Informationen zu der Plugin-Ausführung, z.B. in welcher Stage es ausgeführt wird. Die Informationen stehen direkt als Enum-Werte zu Verfügung.
+You can override the following Methods, depending on you plugins purpose:
+- `OnCreate` gets run when Dataverse __Create__ message is invoked and a record is created. Passes the Entity to your plugin.
+- `OnUpdate` gets run when Dataverse __Update__ message is invoked and a record is updated. Passes the Entity to your plugin.
+- `OnDelete` gets run when Dataverse __Update__ message is invoked and a record is deleted. Passes the EntityReference to your plugin.
+- `OnAssociate` gets run when Dataverse __Associate__ message is invoked and a record is associated to another record. Passes the EntityReference to your plugin.
+- `OnDisassociate` gets run when Dataverse __Disassociate__ message is invoked and a record is disassociated from another record. Passes the EntityReference to your plugin.
+- `OnCustomMessage` gets run when any other Dataverse message is invoked.
+- `OnExecute` always gets run before any of the other methods.
 
-#### Generische Basisklasse
-
-Falls die bereitgestellten Funktionen des *BasePlugin* nicht für deine Anforderungen ausreichen, kannst du die generische Alternative der Klasse verwenden. Diese Klasse stellt die `OnExecute` Funktion zu Verfügung, mit der du einen speziellen Input entgegennehmen kannst.
+There is a generic version `BasePlugin<T>` which lets you specify the type of the target input. Note that this does not represent you custom types, but the input types of a Dataverse event.
 
 ```c#
-public abstract class BasePlugin<T> : IPlugin
+public class MyGenericPlugin : BasePlugin<EntityCollection>, IPlugin 
 {
-    protected virtual void OnExecute(PluginContext context, T target);
-}
-
-public class MyGenericPlugin : BasePlugin<EntityReference>, IPlugin
-{
-    protected override void OnExecute(PluginContext context, EntityReference target)
+    protected override void OnExecute(PluginContext context, EntityCollection target) 
     {
-        // Dein Code hier...
+        // Your plugin implementation...
     }
 }
 ```
+
+### Hybrid-bound entity
+
+Dataverse supports [early and late-bound entities](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/org-service/early-bound-programming) by default. Both approaches have their pros and cons, i.e. late-bound entities have no type safety but a lot of control and early-bound entities are typesafe but no granular control over their attributes.
+The template introduces a hybrid approach. It provides the `BaseEntity<T>` class, which can be inherited from and acts as a wrapper around the default entity class.
+
+You can create your own classes, which represent youd Dataverse tables.
+
+```c#
+[LogicalName("doctor")]
+class Doctor : BaseEntity<Doctor>
+{
+    [PrimaryKey]
+    [LogicalName("doctorid")]
+    public new Guid Id
+    {
+        get => base.Id;
+        set => base.Id = value;
+    }
+
+    [LogicalName("lastname")]
+    public string Lastname 
+    {
+        get => Get(d => d.Lastname);
+        set => Set(d => d.Lastname, value);
+    }
+
+    [LogicalName("experience")]
+    public ExperienceLevel? Experience 
+    {
+        get => GetEnum(d => d.Experience);
+        set => SetEnum(d => d.Experience, value)
+    }
+
+    public Doctor(Entity entity) : base(entity) { }
+}
+```
+By using this approach you gain typesafety for your entities while maintaining control over the underlaying attributes.
+
 
 ### Queries
 
-Daten aus dem Dataverse mit einem `IOrganizationService` abzurufen kann eine Herausforderung darstellen und zu unübersichtlichem Code führen. Das Template stellt Wrapper-Klassen zu Verfügung, mit denen die Abfragen leichter aufzubauen sind. Dabei wird die Abfrage ähnlich wie bei EntityFramework zusammengebaut.
+We can query Dataverse by using the `QueryExpression`s. They require the use of logicalnames, specified as strings, and are convoluted to set up.
+The template provides easy query syntax with the help of the `QueryContext` and the other related classes. They act as wrappers around the _QueryEpression_ and provide functions for selecting columns, adding conditions and related entities to your query results, and more.
+
+It is recommended to use the `QueryContext<T>` in combination with your `BaseEntity<T>` classes.
+
+#### Querying a Dataverse table
 
 ```c#
-EntityCollection entities = context.OrgService.Select("Flüge")
-    .Columns("Startzeit", "Landezeit", "Flugzeug")
-    .Conditions(LogicalOperator.And, filter =>
-        filter.Equals("Abgeschlossen", true)
-        .IsNotNull("Flugzeug")
-        .Greater("FlugDauer", 5))
-    .Join("PassagiereImFlug", "FlugId", "PassagiereImFlug_FlugId", passagiereImFlug =>
-    {
-        passagiereImFlug
-            .Join("Kontakt", "PassagiereImFlug_KontaktId", "KontaktId", kontakt =>
-            {
-                kontakt.AllColumns()
-                    .Alias("Passagier");
-            });
+IEnumerable<Doctor> doctors = context.OrgService.Select<Doctor>()
+    .Execute();
+```
+
+#### Select which attributes to retrieve
+
+- All Dataverse columns
+```c#
+IEnumerable<Doctor> doctors = context.OrgService.Select<Doctor>()
+    .AllColumns()
+    .Execute();
+```
+
+- Only the Dateverse Columns, that have been defined as properties in the `Doctor : BaseEntity<Doctor>` class.
+```c#
+IEnumerable<Doctor> doctors = context.OrgService.Select<Doctor>()
+    .AllDefinedColumns()
+    .Execute();
+```
+
+- Specific Dataverse columns, based on the defined properties.
+```c#
+IEnumerable<Doctor> doctors = context.OrgService.Select<Doctor>()
+    .Columns(doc => new object[] { doc.Lastname, doc.Experience })
+    .Execute();
+```
+
+- No Dataverse columns
+```c#
+IEnumerable<Doctor> doctors = context.OrgService.Select<Doctor>()
+    .NoColumns()
+    .Execute();
+```
+
+#### Limit the amout of results
+
+```c#
+IEnumerable<Doctor> doctors = context.OrgService.Select<Doctor>()
+    .Top(10)
+    .Execute();
+```
+
+#### Use a filter
+
+```c#
+IEnumerable<Doctor> doctors = context.OrgService.Select<Doctor>()
+    .Conditions(LogicalOperator.And, (filter, doc) => 
+        filter.Equals(() => doc.Lastname, "Doe"))
+    .Execute();
+```
+
+#### Join another entity
+
+```c#
+IEnumerable<Doctor> doctors = context.OrgService.Select<Doctor>()
+    .Join<Patient>(doc => doc.Id, pat => pat.DoctorId, configure => {
+        // ... Configure joined entity
     })
     .Execute();
 ```
 
-In diesem Beispiel werden die Start-, Landezeit und das Flugzeug aus der Tabelle *Flüge* abgerufen. Es werden nur Fülge zurückgegeben, die bereits abgeschlossen sind, die ein Flugzeug eingetragen haben und deren Fludauer grüßer als 5 (Stunden) ist. Die Ergebnisse werden mit der n:m Übergangstabelle *PassagierImFlug* gejoint,wleche wiederum mit den Passagieren gejoint wird. Es werden alle Spalten der Passagiere abgerufen.
-<br>
-Im Hintergrund wird durch die Funktionen eine `QueryExpression` erstellt und mit der `Execute`-Funktion die Datensätze abgerufen.
+### Includes
 
-#### Type-Safety
+When querying entities you can use the `Join` functions, to join related entities. However this will include the joined entities data in the collection of your original entities data.
 
-Das eben beschriebene Query-Verfahren setzt voraus, dass die Entitäten und Spalten bei jeder Abfrage als String übergeben werden. Um mehr Sicherheit zu gewährleisten, kann die generische Variante der Abfrage genutzt werden. Dafür müssen die Entitäten in deinem Code so definiert werden:
+Set up your `BaseEntity` with properties of related entities.
 
 ```c#
-[LogicalName("passagier")]
-public class Passagier : BaseEntity<Passagier>
+[LogicalName("patient")]
+class Patient : BaseEntity<Patient>
 {
     [PrimaryKey]
-    [LogicalName("passagierid")]
-    public string Id { get; set; }
+    [LogicalName("patientid")]
+    public new Guid Id
+    {
+        get => base.Id;
+        set => base.Id = value;
+    }
 
-    [LogicalName("vorname")]
-    public string Vorname { get; set; }
+    [Includable]
+    [LogicalName("doctor")]
+    public Doctor Doctor { get; set; }
 
-    [LogicalName("nachanme")]
-    public string Nachname { get; set; }
-
-    [LogicalName("alter")]
-    public int Alter { get; set; }
-
-    public Passgier(Entity entity) : base(entity) { }
+    public Patient(Entity entity = null) : base(entity) { }
 }
 ```
 
-Deine Klasse muss von der Klasse `BaseEntity<T>` erben, welche vorraussetzt, dass die *Entity* an ihren Konstuktor übergeben wird. Die BaseEntity dient als Wrapper für eine `Microsoft.Xrm.Sdk.Entity`.
-<br>
-Die Klasse *Passagier* kannst du nun in einer Abfrage nutzen.
+The property must have an `IncludableAttribte`. Specify the lookups logical name in the `LogicalNameAttribute`.
 
 ```c#
-IEnumerable<Passagier> passagiere = context.OrgService.Select<Passagier>()
-    .Columns(passagier => new object { passagier.Vorname, passagier.Alter})
-    .Conditions(LogicalOperator.And, (filter, passagier) => 
-        filter.Equals(() => passagier.Nachname, "Müller"))
-    .Execute();
-```
-
-In dem werden Vorname und Alter der Passagiere abgefragt, dessen Nachname *Müller* ist.
-<br>
-Im Hintergrund wird durch die `LogicalName`-Attribute der Klasse und ihrerer Eigenschaften die Spaltennamen für die Abfrage zusammengesucht. Durch die `Execute`-Funktion werden die Datensätze geladen und zu Objekten des Typen *Passagier* gemacht.
-<br>
-<br>
-Es ist auch möglich beide Vorgehensweisen zu verbinden. Im folgenden Beispiel werden die Passagiere aus dem Dataverse abgerufen und ihr Alter um ein Jahr erhöht.
-
-```c#
-EntityCollection passagierCollection = context.OrgService.Select("Passagier")
-    .AllColumns()
+IEnumerable<Patient> patients = context.OrgService.Select<Patient>()
+    .Include(p => p.Doctor, configure => {
+        // ... Configure included entity, specify columns
+    })
     .Execute();
 
-var passagiere = passagierCollection.As<Passagier>();
-
-foreach (var passagier in passagiere)
+foreach (var patient in patients)
 {
-    var alter = passagier.Alter;
-    passagier.Set(p => p.Alter, alter + 1);
+    _ = patient.Doctor.Lastname;
 }
 ```
 
-Mit der `Set`-Methode wird nicht nur der Eigenschaft des *Passagiers* ein neuer Wert zugewiesen, sondern dieser auch in der *AttributeCollection* aktualisiert.
+### Creating a custom API
 
-### Misc
+The template includes a base class that you can use when creating a custom API in your Dataverse environment.
 
-Die Vorlage bietet auch weitere hilfreiche Funktionen.
-
-#### Logging
-
-Durch die Basisklasse werden Funktionen zum Protokollieren bereitgestellt, die z.B. so `Log(context, "Hello world!");` aufgerufen werden können. Für das Logging muss der `PluginContext` übergeben werden.
-
-#### Mehrfachaktionen
-
-Du kannst die vielen Erweiterungsmethoden verwenden um z.B. mehrer Datensätze zu aktualisiseren oder zu löschen. Rufe dafür `context.orgService.UpdateMultiple(entities);` auf, oder verwende eine der `ExecuteMultiple`-Funktionen, um die Request anzupassen.
-
-#### Sonstiges
-
-- Datensätze einfach laden mit `context.OrgService.Retrieve(reference);`. Kann auch mit *Entity* Objekten genutzt werden, um fehlende Attribute nachzuladen.
-- **ValidationPlugin** bietet eine Grudlage für Plugins, die in der *PreValidate*-Stage ausgeführt werden. Die Klasse stellt die Funktion `Validate(PluginContext context, Entity entity)` zu Verfügung. Ein *ValidationPlugin* kann nur bei der Erstellung eines Datensatztes ausgeführt werden.
-- **EntityPreprocessingPlugin** sollte in der *PreOperation*-Stage ausgeführt werden. Mit der bereitgestellten Funktion `IEnumerable<(string attribut, object value)> Process(PluginContext context, Entity entity);` können Attribute der Entität vor dem Speichervorgang angepasst werden. Die Funktion wird ausschließlich bei Erstellung und Aktualisiserung eines Datensatzes ausgeführt.
+1. Specify input and output models. The Input needs to inherit from `BaseInputModel<T>` and have a `RequestAttribute`, which specifies the custom API message name.
 ```c#
-public override IEnumerable<(string attribut, object value)> Process(PluginContext context, Entity entity)
+[Request("custom_message_name")]
+public class MyInput : BaseInputModel<MyInput>
 {
-    var vorname = entity.GetAttributeValue<string>("vorname");
-    var nachname = entity.GetAttributeValue<string>("nachname");
+    [Required]
+    [APIParameter("amount", ParameterType.Integer)]
+    public int Amount { get; set; }
+}
 
-    yield return ("name", $"{vorname} {nachname}");
-    yield return ("alter", 0);
+public class MyOutput 
+{
+    [APIParameter("message", ParameterType.String)]
+    public string Message { get; set; }
 }
 ```
-- Das **RenamePlugin** ist ein spezielles *EntityPreprocessingPlugin*, da es dafür gedacht ist, die PrimaryNameColumn der Entität zu vergeben. Sie stellt die Funktion `IEnumerable<string> BuildName(PluginContext context, Entity entity);` bereit, mit der der Name aus mehreren Teilen zusammengestellt werden kann.
+
+2. Create a plugin 
+```c#
+public class MyAPIPlugin : APIPlugin<MyInput, MyOutput>, IPlugin
+{
+    public override void HandleRequest(PluginContext context, MyInput input, MyOutput output)
+    {
+        if (input.Amount > 10)
+        {
+            output.Message = "Amount is lager than 10.";
+        }
+        else
+        {
+            output.Message = "Amount is smaller than 10.";
+        }
+    }
+}
+```
+
+## 📌 Contributing
+
+Contributions are welcome! Feel free to submit issues or pull requests to improve this template.
