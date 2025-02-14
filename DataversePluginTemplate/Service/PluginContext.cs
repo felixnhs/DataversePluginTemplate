@@ -7,6 +7,9 @@ using System.Text;
 
 namespace DataversePluginTemplate.Service
 {
+    /// <summary>
+    /// Provides access to plugin execution information and essential dataverse services.
+    /// </summary>
     public sealed class PluginContext
     {
         private readonly IServiceProvider _serviceProvider;

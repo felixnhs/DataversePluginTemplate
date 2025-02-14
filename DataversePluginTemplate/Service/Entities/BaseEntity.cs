@@ -5,6 +5,24 @@ using System.Linq.Expressions;
 
 namespace DataversePluginTemplate.Service.Entities
 {
+    /// <summary>
+    /// Base for all custom wrapper classes around the <see cref="Microsoft.Xrm.Sdk.Entity"/> class.
+    /// Provides functionalities to interact with the data inside the entities AttributeCollection 
+    /// in a type-safe way.
+    /// Your class should represent a dataverse table in your environment.
+    /// Example usage in inherited classes:
+    /// <code>
+    /// [LogicalName("...")]
+    /// class Person : BaseEntity<Person> 
+    /// {
+    ///     [LogicalName("...")]
+    ///     public string Name { get => Get(x => x.Name); set => Set(x => x.Name, value);}
+    /// }
+    /// </code>
+    /// This way enables the use of properties to interact with entity attributes.
+    /// This approach is required for <see cref="Queries.QueryContext{T}"/>.
+    /// </summary>
+    /// <typeparam name="TChild">The type of child class itself. For typesafty in child classes.</typeparam>
     internal abstract class BaseEntity<TChild>
     {
         private readonly Entity _entity;

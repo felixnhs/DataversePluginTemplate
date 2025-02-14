@@ -4,6 +4,11 @@ using System.Reflection;
 
 namespace DataversePluginTemplate.Queries
 {
+    /// <summary>
+    /// Contains information about entities that are included in queries.
+    /// For internal use only in <see cref="IncludeContext{TInner, TOuter}"/>
+    /// and <see cref="QueryContext{T}"/>.
+    /// </summary>
     internal class IncludeEntity
     {
         public Type EntityType { get; private set; }

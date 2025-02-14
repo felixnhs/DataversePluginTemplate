@@ -7,6 +7,12 @@ using System.Linq.Expressions;
 
 namespace DataversePluginTemplate.Queries
 {
+    /// <summary>
+    /// Wrapper for processing the dataverse join operation in queries, where another
+    /// <see cref="BaseEntity{TChild}"/> is included.
+    /// </summary>
+    /// <typeparam name="TInner">The type of entity used as inner part of the join.</typeparam>
+    /// <typeparam name="TOuter">The type of entity used as outer part of the join.</typeparam>
     internal class IncludeContext<TInner, TOuter>
         where TInner : BaseEntity<TInner>
         where TOuter : BaseEntity<TOuter>
