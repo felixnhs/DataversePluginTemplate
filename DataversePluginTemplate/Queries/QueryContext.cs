@@ -10,6 +10,9 @@ using System.Reflection;
 
 namespace DataversePluginTemplate.Queries
 {
+    /// <summary>
+    /// Wrapper for building dataverse queries and retrieve entites from dataverse.
+    /// </summary>
     internal sealed class QueryContext
     {
         private readonly IOrganizationService _orgService;
@@ -88,6 +91,14 @@ namespace DataversePluginTemplate.Queries
         }
     }
 
+    /// <summary>
+    /// Wrapper for building dataverse queries in a typesafe way and retrieve entities from dataverse.
+    /// Use in combination with <see cref="BaseEntity{TChild}"/>.
+    /// The methods will construct a <see cref="QueryExpression"/> for dataverse, and when
+    /// executed will convert the results into instances of your class.
+    /// Entities, that are queried, mus have a <see cref="LogicalNameAttribute"/>.
+    /// </summary>
+    /// <typeparam name="T">The qeruy result type.</typeparam>
     internal sealed class QueryContext<T>
         where T : BaseEntity<T>
     {
@@ -211,6 +222,17 @@ namespace DataversePluginTemplate.Queries
             return Include<TOuter>(includePropertySelector, JoinOperator.LeftOuter, configureInclude);
         }
 
+        /// <summary>
+        /// Join in another <see cref="BaseEntity{TChild}"/>, that is a property of <see cref="T"/> in code and a lookup in dataverse.
+        /// When the results are retrieved and the instances of <see cref="T"/> are created, the joined/included instances
+        /// are also processed.
+        /// <seealso cref="Service.Entities.IncludableAttribute"/>
+        /// </summary>
+        /// <typeparam name="TOuter">The type to include</typeparam>
+        /// <param name="includePropertySelector">Selector expression of the property to include</param>
+        /// <param name="joinOperator">How dataverse should join the data.</param>
+        /// <param name="configureInclude">Configure the included entity</param>
+        /// <returns>The same QueryContext for chaining.</returns>
         internal QueryContext<T> Include<TOuter>(Expression<Func<T, TOuter>> includePropertySelector, JoinOperator joinOperator, Action<IncludeContext<T, TOuter>> configureInclude)
             where TOuter : BaseEntity<TOuter>
         {
@@ -231,6 +253,10 @@ namespace DataversePluginTemplate.Queries
             return this;
         }
 
+        /// <summary>
+        /// Makes the call to dataverse to retrieve the entities and convert them into your instances.
+        /// </summary>
+        /// <returns>The entites as your type.</returns>
         internal IEnumerable<T> Execute()
         {
             var queryResults = _orgService.RetrieveMultiple(_expression).As<T>();

@@ -3,6 +3,9 @@ using System;
 
 namespace DataversePluginTemplate.Service.Notification
 {
+    /// <summary>
+    /// For sending dataverse notifications. Use the <see cref="Create"/> method to get started.
+    /// </summary>
     internal sealed class Notification
     {
         private const string SYSTEMUSER_LOGICALNAME = "systemuser";
@@ -19,6 +22,15 @@ namespace DataversePluginTemplate.Service.Notification
             _request = new NotificationRequest(userER);
         }
 
+        /// <summary>
+        /// Create a new Norification object. Notification objects contain information about the notification,
+        /// that can then be sent to dataverse.
+        /// </summary>
+        /// <param name="context">Plugin execition services. Used for sending the notification to the server</param>
+        /// <param name="empfaenger">Recipient of the notification</param>
+        /// <returns>The method returns a new <see cref="Notification"/> object, 
+        /// which enables the use of chainging methods for constructing the notification.
+        /// </returns>
         public static Notification Create(PluginContext context, EntityReference empfaenger)
         {
             return new Notification(context, empfaenger)
@@ -26,6 +38,15 @@ namespace DataversePluginTemplate.Service.Notification
                 .SetNotificationType(NotificationType.Timed);
         }
 
+        /// <summary>
+        /// Create a new Norification object. Notification objects contain information about the notification,
+        /// that can then be sent to dataverse.
+        /// </summary>
+        /// <param name="context">Plugin execition services. Used for sending the notification to the server</param>
+        /// <param name="userId">Id of the systemuser, who will recieve the notification</param>
+        /// <returns>The method returns a new <see cref="Notification"/> object, 
+        /// which enables the use of chainging methods for constructing the notification.
+        /// </returns>
         public static Notification Create(PluginContext context, Guid userId)
         {
             return Create(context, new EntityReference(SYSTEMUSER_LOGICALNAME, userId));
@@ -68,6 +89,9 @@ namespace DataversePluginTemplate.Service.Notification
 
         public Guid? Send() => Send(_context.OrgService);
 
+        /// <summary>
+        /// For internal use. Scaffold around a <see cref="OrganizationRequest"/>, that sends the notificaion.
+        /// </summary>
         private sealed class NotificationRequest
         {
             private const string REQUEST_NAME = "SendAppNotification";

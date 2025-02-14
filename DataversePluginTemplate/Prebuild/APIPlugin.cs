@@ -8,6 +8,13 @@ using System.Reflection;
 
 namespace DataversePluginTemplate.Prebuild
 {
+    /// <summary>
+    /// Base class for plugins, that are used as dataverse Custom APIs.
+    /// Inputs from the api are automatically parsed and passed into your plugin.
+    /// Refer to <see cref="BaseInputModel{TInput}"/> for a usage example.
+    /// </summary>
+    /// <typeparam name="TInputModel">The type of input for your api.</typeparam>
+    /// <typeparam name="TOutputModel">The the of output of your api.</typeparam>
     public abstract class APIPlugin<TInputModel, TOutputModel> : BasePlugin
         where TInputModel : BaseInputModel<TInputModel>, new()
         where TOutputModel : class, new()

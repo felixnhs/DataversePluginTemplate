@@ -6,6 +6,10 @@ using System.Linq.Expressions;
 
 namespace DataversePluginTemplate.Queries
 {
+    /// <summary>
+    /// Wrapper for handleing filter operations in queries.
+    /// <seealso cref="QueryContext"/>.
+    /// </summary>
     internal sealed class FilterContext
     {
         private readonly FilterExpression _filterExpression;
@@ -136,6 +140,11 @@ namespace DataversePluginTemplate.Queries
         }
     }
 
+    /// <summary>
+    /// Wrapper for handleing filter operations in queries.
+    /// <seealso cref="QueryContext{T}"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of entity to query.</typeparam>
     internal sealed class FilterContext<T>
         where T : BaseEntity<T>
     {

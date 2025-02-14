@@ -7,6 +7,13 @@ using System.ServiceModel;
 
 namespace DataversePluginTemplate.Service
 {
+    /// <summary>
+    /// Provides base functionalities for custom plugins.
+    /// Has multiple methids for different dataverse events.
+    /// Don't override the `Execute` method yourself, since it sets up usefull services and 
+    /// extracts target input of default dataverse events. 
+    /// Override one of the virtual methods to get started. 
+    /// </summary>
     public abstract class BasePlugin : IPlugin
     {
         protected const string TARGET = "Target";
@@ -100,6 +107,16 @@ namespace DataversePluginTemplate.Service
         }
     }
 
+    /// <summary>
+    /// Generic version of the base plugin, which lets you specify the type of input
+    /// passed to the methods for you to use.
+    /// This is for the "Target"-input only. Use it for default dataverse events, that
+    /// don't have a dedicated method defined in the BasePlugin.
+    /// </summary>
+    /// <typeparam name="T">
+    /// The type of the input. Only valid dataverse input type will work.
+    /// Needs to be the typfe of the "Target§ of the context's InputParameters.
+    /// </typeparam>
     public abstract class BasePlugin<T> : BasePlugin, IPlugin
     {
         public BasePlugin() : base() { }

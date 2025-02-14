@@ -7,6 +7,20 @@ using System.Text.RegularExpressions;
 
 namespace DataversePluginTemplate.Service.API
 {
+    /// <summary>
+    /// Base for API inputs.
+    /// When used in combination with <see cref="Prebuild.APIPlugin{TInputModel, TOutputModel}"/>,
+    /// the plugin InputParameters will be mapped into an instance of your class, that inherits this.
+    /// Example usage:
+    /// [Request("...")]
+    /// public class SampleInput : BaseInputModel<SampleInput>
+    /// {
+    ///     // ...
+    /// }
+    /// 
+    /// public class SampleAPI : APIPlugin<SampleInput, ...>, IPlugin { ... }
+    /// </summary>
+    /// <typeparam name="TInput">The type of input class itself.</typeparam>
     public abstract class BaseInputModel<TInput>
         where TInput : BaseInputModel<TInput>, new()
     {

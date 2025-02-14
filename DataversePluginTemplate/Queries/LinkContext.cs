@@ -8,6 +8,9 @@ using System.Linq.Expressions;
 
 namespace DataversePluginTemplate.Queries
 {
+    /// <summary>
+    /// Wrapper for joining entities in <see cref="QueryContext"/>.
+    /// </summary>
     internal sealed class LinkContext
     {
         private readonly LinkEntity _linkEntity;
@@ -73,6 +76,11 @@ namespace DataversePluginTemplate.Queries
         }
     }
 
+    /// <summary>
+    /// Wrapper for joining entities in <see cref="QueryContext{T}"/>.
+    /// </summary>
+    /// <typeparam name="TInner">The type of entity used as inner part of the join.</typeparam>
+    /// <typeparam name="TOuter">The type of entity used as outer part of the join.</typeparam>
     internal sealed class LinkContext<TInner, TOuter>
         where TInner : BaseEntity<TInner>
         where TOuter : BaseEntity<TOuter>
