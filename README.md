@@ -13,6 +13,8 @@ This template is ideal for Dynamics 365 consultants, developers, and teams looki
 
 ## 🚀 Installation
 
+This project is intended to be used as Visual Studio project template. It is possible to compile this project into its own library and use it in plugin packages ([more info](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/build-and-package)). This approach is more convoluted and thus not recommended.
+
 ### Prerequisites
 
 Before using this template, ensure you have the following installed:
@@ -27,7 +29,28 @@ Before using this template, ensure you have the following installed:
 
 1. Download the zip file from the latest release.
 2. Move or copy the file into your VS-templates directory.
-s
+
+#### Build as standalone library
+
+1. Clone the repo.
+    ```bash
+    git clone https://github.com/felixnhs/DataversePluginTemplate.git
+    ```
+2. (optional) Rename the project. For clearity you should:
+    - Rename the directories
+    - Rename the .sln file
+    - Rename the .csproj file
+    - Edit the .sln file. There is a path to the .csproj file in there.
+    - Edit the .csproj file. Change the projectname in there.
+3. Build the project. You can use VS or the command line.
+    -  Open Visual Studio and then open the solution from the startscreen. Hit __Ctrl+Shift+B__ to build the project.
+    -  Or open your command line and use 
+        ```bash
+        dotnet build <Path to .csproj>
+        ```
+4. Open your dataverse plugin project or create a new one. It's recommended to also use VS for this.
+5. Add the _.dll_ file from step 3 as reference to your project.
+
 ## 🎯 Usage
 
 ### Creating a New Plugin Project
