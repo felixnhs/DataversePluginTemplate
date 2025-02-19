@@ -13,28 +13,28 @@ namespace DataversePluginTemplate.Queries
     /// </summary>
     /// <typeparam name="TInner">The type of entity used as inner part of the join.</typeparam>
     /// <typeparam name="TOuter">The type of entity used as outer part of the join.</typeparam>
-    internal class IncludeContext<TInner, TOuter>
+    public sealed class IncludeContext<TInner, TOuter>
         where TInner : BaseEntity<TInner>
         where TOuter : BaseEntity<TOuter>
     {
         private readonly LinkEntity _linkEntity;
         private readonly IncludeEntity _includeEntity;
 
-        public IncludeContext(LinkEntity linkEntity, IncludeEntity includeEntity)
+        internal IncludeContext(LinkEntity linkEntity, IncludeEntity includeEntity)
         {
             _linkEntity = linkEntity;
             _includeEntity = includeEntity;
             _linkEntity.EntityAlias = includeEntity.EntityLogicalName;
         }
 
-        internal IncludeContext<TInner, TOuter> Alias(string entityAlias)
+        public IncludeContext<TInner, TOuter> Alias(string entityAlias)
         {
             _linkEntity.EntityAlias = entityAlias;
             _includeEntity.EntityAlias = entityAlias;
             return this;
         }
 
-        internal IncludeContext<TInner, TOuter> Columns(Expression<Func<TOuter, object[]>> propertySelector)
+        public IncludeContext<TInner, TOuter> Columns(Expression<Func<TOuter, object[]>> propertySelector)
         {
             var propertyInfos = propertySelector.GetPropertyInfos();
 
@@ -46,7 +46,7 @@ namespace DataversePluginTemplate.Queries
             return this;
         }
 
-        internal IncludeContext<TInner, TOuter> Columns(Columns columns)
+        public IncludeContext<TInner, TOuter> Columns(Columns columns)
         {
             switch (columns)
             {
@@ -63,13 +63,13 @@ namespace DataversePluginTemplate.Queries
             return this;
         }
 
-        internal IncludeContext<TInner, TOuter> AllDefinedColumns()
+        public IncludeContext<TInner, TOuter> AllDefinedColumns()
         {
             _linkEntity.Columns.AddColumns(typeof(TOuter).GetAllDefinedLogicalNames());
             return this;
         }
 
-        internal IncludeContext<TInner, TOuter> Conditions(LogicalOperator logicalOperator, Action<FilterContext<TOuter>, TOuter> configureFilter)
+        public IncludeContext<TInner, TOuter> Conditions(LogicalOperator logicalOperator, Action<FilterContext<TOuter>, TOuter> configureFilter)
         {
             var filterExpression = new FilterExpression(logicalOperator);
 
@@ -80,19 +80,19 @@ namespace DataversePluginTemplate.Queries
 
             return this;
         }
-        internal IncludeContext<TInner, TOuter> AllColumns(bool allColumns = true)
+        public IncludeContext<TInner, TOuter> AllColumns(bool allColumns = true)
         {
             _linkEntity.Columns.AllColumns = allColumns;
             return this;
         }
 
-        internal IncludeContext<TInner, TOuter> ThenInclude<T>(Expression<Func<TOuter, T>> includePropertySelector, Action<IncludeContext<TOuter, T>> configureLink)
+        public IncludeContext<TInner, TOuter> ThenInclude<T>(Expression<Func<TOuter, T>> includePropertySelector, Action<IncludeContext<TOuter, T>> configureLink)
             where T : BaseEntity<T>
         {
             return ThenInclude<T>(includePropertySelector, JoinOperator.LeftOuter, configureLink);
         }
 
-        internal IncludeContext<TInner, TOuter> ThenInclude<T>(Expression<Func<TOuter, T>> includePropertySelector, JoinOperator joinOperator, Action<IncludeContext<TOuter, T>> configureLink)
+        public IncludeContext<TInner, TOuter> ThenInclude<T>(Expression<Func<TOuter, T>> includePropertySelector, JoinOperator joinOperator, Action<IncludeContext<TOuter, T>> configureLink)
             where T : BaseEntity<T>
         {
             var entityName = typeof(T).GetLogicalName();

@@ -1,6 +1,6 @@
 ﻿namespace DataversePluginTemplate.Queries
 {
-    internal enum Columns
+    public enum Columns
     {
         None,
         All,
