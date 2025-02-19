@@ -3,9 +3,9 @@ using System.Reflection;
 
 namespace DataversePluginTemplate.Service.Extensions
 {
-    internal static class EnumExtensionMethods
+    public static class EnumExtensionMethods
     {
-        private static TAttribute GetCustomAttribute<TAttribute>(Enum enumValue)
+        public static TAttribute GetCustomAttribute<TAttribute>(Enum enumValue)
             where TAttribute : Attribute
         {
             var enumType = enumValue.GetType();
