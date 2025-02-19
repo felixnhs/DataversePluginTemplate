@@ -2,5 +2,5 @@
 
 namespace DataversePluginTemplate.Service.API
 {
-    internal class RequiredAttribute : Attribute { }
+    public class RequiredAttribute : Attribute { }
 }
