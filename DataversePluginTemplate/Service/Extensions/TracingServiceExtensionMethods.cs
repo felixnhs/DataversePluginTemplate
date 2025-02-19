@@ -6,7 +6,7 @@ using System.Text;
 
 namespace DataversePluginTemplate.Service.Extensions
 {
-    internal static class TracingServiceExtensionMethods
+    public static class TracingServiceExtensionMethods
     {
 #if DEBUG
         public static void DebugLog(this ITracingService tracingService, string message)
