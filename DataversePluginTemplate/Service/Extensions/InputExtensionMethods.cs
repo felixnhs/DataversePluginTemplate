@@ -5,16 +5,16 @@ using System.Reflection;
 
 namespace DataversePluginTemplate.Service.Extensions
 {
-    internal static class InputExtensionMethods
+    public static class InputExtensionMethods
     {
-        internal static bool IsValid(this Guid guid) => guid != null && guid != default && guid != Guid.Empty;
-        internal static bool IsValid(this Guid? guid) => guid != null && guid.HasValue && guid.Value != default && guid.Value != Guid.Empty;
+        public static bool IsValid(this Guid guid) => guid != null && guid != default && guid != Guid.Empty;
+        public static bool IsValid(this Guid? guid) => guid != null && guid.HasValue && guid.Value != default && guid.Value != Guid.Empty;
 
-        internal static bool IsValid(this DateTime dateTime) => dateTime != null && dateTime != default;
-        internal static bool IsValid(this DateTime? dateTime) => dateTime != null && dateTime.HasValue && dateTime.Value != default;
+        public static bool IsValid(this DateTime dateTime) => dateTime != null && dateTime != default;
+        public static bool IsValid(this DateTime? dateTime) => dateTime != null && dateTime.HasValue && dateTime.Value != default;
 
 
-        internal static DateTime GetUtcTime(this DateTime dateTime)
+        public static DateTime GetUtcTime(this DateTime dateTime)
         {
             var specifiedLocalTime = dateTime.Kind != DateTimeKind.Local
                 ? DateTime.SpecifyKind(dateTime, DateTimeKind.Local)
