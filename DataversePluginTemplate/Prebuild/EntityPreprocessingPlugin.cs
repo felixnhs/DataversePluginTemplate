@@ -11,7 +11,7 @@ namespace DataversePluginTemplate.Prebuild
         public EntityPreprocessingPlugin(string unsecureConfiguration, string secureConfiguration)
             : base(unsecureConfiguration, secureConfiguration) { }
 
-        public abstract IEnumerable<(string attribut, object value)> Process(PluginContext context, Entity entity);
+        protected abstract IEnumerable<(string attribut, object value)> Process(PluginContext context, Entity entity);
 
         
         protected sealed override void OnCreate(PluginContext context, Entity entity)

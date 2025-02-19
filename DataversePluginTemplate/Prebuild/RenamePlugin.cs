@@ -24,9 +24,9 @@ namespace DataversePluginTemplate.Prebuild
             _nameColumn = nameColumn;
         }
 
-        internal abstract IEnumerable<string> BuildName(PluginContext context, Entity entity);
+        protected abstract IEnumerable<string> BuildName(PluginContext context, Entity entity);
 
-        public sealed override IEnumerable<(string attribut, object value)> Process(PluginContext context, Entity entity)
+        protected sealed override IEnumerable<(string attribut, object value)> Process(PluginContext context, Entity entity)
         {
             var nameParts = BuildName(context, entity)
                 .GetEnumerator();
