@@ -8,9 +8,9 @@ using System.Reflection;
 
 namespace DataversePluginTemplate.Service.Extensions
 {
-    internal static class EntityExtensionMethods
+    public static class EntityExtensionMethods
     {
-        internal static void SetPropertyValue<TEntity, TProperty, TValue>(this Entity entity, TEntity earlyBoundInstance, Expression<Func<TEntity, TProperty>> propertyExpression, TValue value)
+        public static void SetPropertyValue<TEntity, TProperty, TValue>(this Entity entity, TEntity earlyBoundInstance, Expression<Func<TEntity, TProperty>> propertyExpression, TValue value)
             where TEntity : Entity, new()
         {
             var logicalName = GetPropertyLogicalName(propertyExpression);
@@ -20,7 +20,7 @@ namespace DataversePluginTemplate.Service.Extensions
             entity[logicalName] = value;
         }
 
-        internal static TValue GetPropertyValue<TEntity, TProperty, TValue>(this Entity entity, TEntity earlyBoundInstance, Expression<Func<TEntity, TProperty>> propertyExpression)
+        public static TValue GetPropertyValue<TEntity, TProperty, TValue>(this Entity entity, TEntity earlyBoundInstance, Expression<Func<TEntity, TProperty>> propertyExpression)
             where TEntity : Entity, new()
             where TValue : class, new()
         {
@@ -31,7 +31,7 @@ namespace DataversePluginTemplate.Service.Extensions
             return entity[logicalName] as TValue;
         }
 
-        internal static T As<T>(this Entity entity)
+        public static T As<T>(this Entity entity)
             where T : BaseEntity<T>
         {
             // Konstruktor suchen
@@ -46,19 +46,19 @@ namespace DataversePluginTemplate.Service.Extensions
             return target;
         }
 
-        internal static IEnumerable<T> As<T>(this IEnumerable<Entity> entities)
+        public static IEnumerable<T> As<T>(this IEnumerable<Entity> entities)
             where T : BaseEntity<T>
         {
             return entities.Select(entity => entity.As<T>());
         }
 
-        internal static IEnumerable<T> As<T>(this EntityCollection entityCollection)
+        public static IEnumerable<T> As<T>(this EntityCollection entityCollection)
             where T : BaseEntity<T>
         {
             return entityCollection.Entities.As<T>();
         }
 
-        internal static void Update<T>(this BaseEntity<T> entity, PluginContext context, Action<T> configure)
+        public static void Update<T>(this BaseEntity<T> entity, PluginContext context, Action<T> configure)
             where T : BaseEntity<T>
         {
             var updateEntity = new Entity(entity.Entity.LogicalName, entity.Id)
@@ -69,7 +69,7 @@ namespace DataversePluginTemplate.Service.Extensions
             context.OrgService.Update(updateEntity.Entity);
         }
 
-        internal static void Update<T>(this T entity, PluginContext context, Expression<Func<T, object[]>> propertySelector)
+        public static void Update<T>(this T entity, PluginContext context, Expression<Func<T, object[]>> propertySelector)
             where T : BaseEntity<T>
         {
             var propertyInfos = propertySelector.GetPropertyInfos();
@@ -85,6 +85,20 @@ namespace DataversePluginTemplate.Service.Extensions
             }
 
             context.OrgService.Update(updateEntity);
+        }
+
+        public static void SetEntityValue<TEntity, TInput, TProp>(this TEntity entity, Expression<Func<TEntity, TProp>> propertySelector, TInput inputValue, bool? shouldClear)
+            where TEntity : BaseEntity<TEntity>
+        {
+            var propertyInfo = propertySelector.GetPropertyInfo();
+            if (shouldClear == true)
+                propertyInfo.SetValue(entity, null);
+
+            else
+            {
+                if (inputValue != null)
+                    propertyInfo.SetValue(entity, inputValue);
+            }
         }
 
         private static string GetPropertyLogicalName<TEntity, TProperty>(Expression<Func<TEntity, TProperty>> propertyExpression)
@@ -108,20 +122,6 @@ namespace DataversePluginTemplate.Service.Extensions
             catch
             {
                 return null;
-            }
-        }
-
-        internal static void SetEntityValue<TEntity, TInput, TProp>(this TEntity entity, Expression<Func<TEntity, TProp>> propertySelector, TInput inputValue, bool? shouldClear)
-            where TEntity : BaseEntity<TEntity>
-        {
-            var propertyInfo = propertySelector.GetPropertyInfo();
-            if (shouldClear == true)
-                propertyInfo.SetValue(entity, null);
-
-            else
-            {
-                if (inputValue != null)
-                    propertyInfo.SetValue(entity, inputValue);
             }
         }
     }
