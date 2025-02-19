@@ -8,5 +8,5 @@ namespace DataversePluginTemplate.Service.Entities
     /// and <see cref="Queries.IncludeContext{TInner, TOuter}"/>.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
-    internal class IncludableAttribute : Attribute { }
+    public sealed class IncludableAttribute : Attribute { }
 }

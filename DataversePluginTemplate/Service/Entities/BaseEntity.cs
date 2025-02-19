@@ -23,15 +23,15 @@ namespace DataversePluginTemplate.Service.Entities
     /// This approach is required for <see cref="Queries.QueryContext{T}"/>.
     /// </summary>
     /// <typeparam name="TChild">The type of child class itself. For typesafty in child classes.</typeparam>
-    internal abstract class BaseEntity<TChild>
+    public abstract class BaseEntity<TChild>
     {
         private readonly Entity _entity;
-        internal Entity Entity => _entity;
-        internal EntityReference Reference => _entity.ToEntityReference();
+        public Entity Entity => _entity;
+        public EntityReference Reference => _entity.ToEntityReference();
 
-        internal Guid Id { get => _entity.Id; set => _entity.Id = value; }
+        public virtual Guid Id { get => _entity.Id; set => _entity.Id = value; }
 
-        internal BaseEntity(Entity entity = null)
+        protected BaseEntity(Entity entity = null)
         {
             if (entity != null)
                 _entity = entity;
@@ -39,28 +39,28 @@ namespace DataversePluginTemplate.Service.Entities
                 _entity = new Entity(typeof(TChild).GetLogicalName());
         }
 
-        public void Set<TProperty, TValue>(Expression<Func<TChild, TProperty>> propertyExpression, TValue value)
+        protected void Set<TProperty, TValue>(Expression<Func<TChild, TProperty>> propertyExpression, TValue value)
         {
             var property = propertyExpression.GetPropertyInfo();
             var logicalName = property.GetLogicalName();
             _entity.Attributes[logicalName] = value;
         }
 
-        public TProperty Get<TProperty>(Expression<Func<TChild, TProperty>> propertyExpression)
+        protected TProperty Get<TProperty>(Expression<Func<TChild, TProperty>> propertyExpression)
         {
             var property = propertyExpression.GetPropertyInfo();
             var logicalName = property.GetLogicalName();
             return _entity.GetAttributeValue<TProperty>(logicalName);
         }
 
-        public TProperty Get<TProperty, TValue>(Expression<Func<TChild, TProperty>> propertyExpression, Func<TValue, TProperty> valueSelector)
+        protected TProperty Get<TProperty, TValue>(Expression<Func<TChild, TProperty>> propertyExpression, Func<TValue, TProperty> valueSelector)
         {
             var property = propertyExpression.GetPropertyInfo();
             var logicalName = property.GetLogicalName();
             return valueSelector(_entity.GetAttributeValue<TValue>(logicalName));
         }
 
-        public TProperty? GetEnum<TProperty>(Expression<Func<TChild, TProperty?>> propertyExpression)
+        protected TProperty? GetEnum<TProperty>(Expression<Func<TChild, TProperty?>> propertyExpression)
             where TProperty : struct, Enum
         {
             var property = propertyExpression.GetPropertyInfo();
@@ -69,7 +69,7 @@ namespace DataversePluginTemplate.Service.Entities
             return value == null ? (TProperty?)null : (TProperty)Enum.ToObject(typeof(TProperty), value.Value);
         }
 
-        public void SetEnum<TProperty>(Expression<Func<TChild, TProperty?>> propertyExpression, TProperty? value)
+        protected void SetEnum<TProperty>(Expression<Func<TChild, TProperty?>> propertyExpression, TProperty? value)
             where TProperty : struct, Enum
         {
             var property = propertyExpression.GetPropertyInfo();
@@ -77,7 +77,7 @@ namespace DataversePluginTemplate.Service.Entities
             _entity.Attributes[logicalName] = new OptionSetValue(Convert.ToInt32(value));
         }
 
-        public TProperty GetEnumArray<TProperty>(Expression<Func<TChild, TProperty>> propertyExpression)
+        protected TProperty GetEnumArray<TProperty>(Expression<Func<TChild, TProperty>> propertyExpression)
             where TProperty : class
         {
             var property = propertyExpression.GetPropertyInfo();
@@ -92,7 +92,7 @@ namespace DataversePluginTemplate.Service.Entities
             return enumArray as TProperty;
         }
 
-        public void SetEnumArray<TProperty>(Expression<Func<TChild, TProperty>> propertyExpression, TProperty value)
+        protected void SetEnumArray<TProperty>(Expression<Func<TChild, TProperty>> propertyExpression, TProperty value)
             where TProperty : class
         {
             var property = propertyExpression.GetPropertyInfo();

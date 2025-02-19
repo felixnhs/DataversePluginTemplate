@@ -8,7 +8,7 @@ namespace DataversePluginTemplate.Service.Entities
     /// entities AttributeCollection and in queries or other database operations.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-    internal sealed class LogicalNameAttribute : Attribute
+    public sealed class LogicalNameAttribute : Attribute
     {
         public string Name { get; }
 

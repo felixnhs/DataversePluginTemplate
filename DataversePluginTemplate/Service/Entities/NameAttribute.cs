@@ -2,7 +2,7 @@
 
 namespace DataversePluginTemplate.Service.Entities
 {
-    internal class NameAttribute : Attribute
+    public sealed class NameAttribute : Attribute
     {
         public string Name { get; private set; }
         public NameAttribute(string name) : base() 
