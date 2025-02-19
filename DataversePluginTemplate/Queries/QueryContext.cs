@@ -13,12 +13,12 @@ namespace DataversePluginTemplate.Queries
     /// <summary>
     /// Wrapper for building dataverse queries and retrieve entites from dataverse.
     /// </summary>
-    internal sealed class QueryContext
+    public sealed class QueryContext
     {
         private readonly IOrganizationService _orgService;
         private readonly QueryExpression _expression;
 
-        internal QueryContext(IOrganizationService orgService, string entityName)
+        public QueryContext(IOrganizationService orgService, string entityName)
         {
             _orgService = orgService;
             _expression = new QueryExpression(entityName)
@@ -28,13 +28,13 @@ namespace DataversePluginTemplate.Queries
             };
         }
 
-        internal QueryContext Columns(params string[] columns)
+        public QueryContext Columns(params string[] columns)
         {
             _expression.ColumnSet.AddColumns(columns);
             return this;
         }
 
-        internal QueryContext Columns(IEnumerable<string> columns)
+        public QueryContext Columns(IEnumerable<string> columns)
         {
             foreach (var column in columns)
                 _expression.ColumnSet.AddColumn(column);
@@ -42,25 +42,25 @@ namespace DataversePluginTemplate.Queries
             return this;
         }
 
-        internal QueryContext AllColumns(bool allColumns = true)
+        public QueryContext AllColumns(bool allColumns = true)
         {
             _expression.ColumnSet.AllColumns = allColumns;
             return this;
         }
 
-        internal QueryContext NoColumns()
+        public QueryContext NoColumns()
         {
             _expression.ColumnSet.AllColumns = false;
             return this;
         }
 
-        internal QueryContext Top(int count)
+        public QueryContext Top(int count)
         {
             _expression.TopCount = count;
             return this;
         }
 
-        internal QueryContext Conditions(LogicalOperator logicalOperator, Action<FilterContext> configureFilter)
+        public QueryContext Conditions(LogicalOperator logicalOperator, Action<FilterContext> configureFilter)
         {
             var filterExpression = new FilterExpression(logicalOperator);
 
@@ -71,12 +71,12 @@ namespace DataversePluginTemplate.Queries
             return this;
         }
 
-        internal QueryContext Join(string entityName, string fromColumn, string toColumn, Action<LinkContext> configureLink)
+        public QueryContext Join(string entityName, string fromColumn, string toColumn, Action<LinkContext> configureLink)
         {
             return Join(entityName, fromColumn, toColumn, JoinOperator.Inner, configureLink);
         }
 
-        internal QueryContext Join(string entityName, string fromColumn, string toColumn, JoinOperator joinOperator, Action<LinkContext> configureLink)
+        public QueryContext Join(string entityName, string fromColumn, string toColumn, JoinOperator joinOperator, Action<LinkContext> configureLink)
         {
             var linkEntity = new LinkEntity(_expression.EntityName, entityName, fromColumn, toColumn, joinOperator);
             var linkContext = new LinkContext(linkEntity, entityName);
@@ -85,7 +85,7 @@ namespace DataversePluginTemplate.Queries
             return this;
         }
 
-        internal EntityCollection Execute()
+        public EntityCollection Execute()
         {
             return _orgService.RetrieveMultiple(_expression);
         }
@@ -99,20 +99,20 @@ namespace DataversePluginTemplate.Queries
     /// Entities, that are queried, mus have a <see cref="LogicalNameAttribute"/>.
     /// </summary>
     /// <typeparam name="T">The qeruy result type.</typeparam>
-    internal sealed class QueryContext<T>
+    public sealed class QueryContext<T>
         where T : BaseEntity<T>
     {
         private readonly IOrganizationService _orgService;
         private readonly QueryExpression _expression;
         private readonly List<IncludeEntity> _includes = new List<IncludeEntity>();
 
-        internal QueryContext(IOrganizationService orgService)
+        public QueryContext(IOrganizationService orgService)
         {
             _orgService = orgService;
             _expression = new QueryExpression(typeof(T).GetLogicalName());
         }
 
-        internal QueryContext<T> Columns(Expression<Func<T, object[]>> propertySelector)
+        public QueryContext<T> Columns(Expression<Func<T, object[]>> propertySelector)
         {
             var propertyInfos = propertySelector.GetPropertyInfos();
 
@@ -124,7 +124,7 @@ namespace DataversePluginTemplate.Queries
             return this;
         }
 
-        internal QueryContext<T> Columns(Columns columns)
+        public QueryContext<T> Columns(Columns columns)
         {
             switch (columns)
             {
@@ -141,31 +141,31 @@ namespace DataversePluginTemplate.Queries
             return this;
         }
 
-        internal QueryContext<T> AllDefinedColumns()
+        public QueryContext<T> AllDefinedColumns()
         {
             _expression.ColumnSet.AddColumns(typeof(T).GetAllDefinedLogicalNames());
             return this;
         }
 
-        internal QueryContext<T> AllColumns(bool allColumns = true)
+        public QueryContext<T> AllColumns(bool allColumns = true)
         {
             _expression.ColumnSet.AllColumns = allColumns;
             return this;
         }
 
-        internal QueryContext<T> NoColumns()
+        public QueryContext<T> NoColumns()
         {
             _expression.ColumnSet.AllColumns = false;
             return this;
         }
 
-        internal QueryContext<T> Top(int count)
+        public QueryContext<T> Top(int count)
         {
             _expression.TopCount = count;
             return this;
         }
 
-        internal QueryContext<T> Conditions(LogicalOperator logicalOperator, Action<FilterContext<T>, T> configureFilter)
+        public QueryContext<T> Conditions(LogicalOperator logicalOperator, Action<FilterContext<T>, T> configureFilter)
         {
             var filterExpression = new FilterExpression(logicalOperator);
 
@@ -176,13 +176,13 @@ namespace DataversePluginTemplate.Queries
             return this;
         }
 
-        internal QueryContext<T> Join<TOuter>(Expression<Func<T, object>> fromColumnSelector, Expression<Func<TOuter, object>> toColumnSelector, Action<LinkContext<T, TOuter>> configureLink)
+        public QueryContext<T> Join<TOuter>(Expression<Func<T, object>> fromColumnSelector, Expression<Func<TOuter, object>> toColumnSelector, Action<LinkContext<T, TOuter>> configureLink)
             where TOuter : BaseEntity<TOuter>
         {
             return Join(fromColumnSelector, toColumnSelector, JoinOperator.Inner, configureLink);
         }
 
-        internal QueryContext<T> Join<TOuter>(Expression<Func<T, object>> fromColumnSelector, Expression<Func<TOuter, object>> toColumnSelector, JoinOperator joinOperator, Action<LinkContext<T, TOuter>> configureLink)
+        public QueryContext<T> Join<TOuter>(Expression<Func<T, object>> fromColumnSelector, Expression<Func<TOuter, object>> toColumnSelector, JoinOperator joinOperator, Action<LinkContext<T, TOuter>> configureLink)
             where TOuter : BaseEntity<TOuter>
         {
             var entityName = typeof(TOuter).GetLogicalName();
@@ -196,13 +196,13 @@ namespace DataversePluginTemplate.Queries
             return this;
         }
 
-        internal QueryContext<T> Join<TOuter>(Expression<Func<TOuter, object>> toColumnSelector, Action<LinkContext<T, TOuter>> configureLink)
+        public QueryContext<T> Join<TOuter>(Expression<Func<TOuter, object>> toColumnSelector, Action<LinkContext<T, TOuter>> configureLink)
             where TOuter : BaseEntity<TOuter>
         {
             return Join(toColumnSelector, JoinOperator.Inner, configureLink);
         }
 
-        internal QueryContext<T> Join<TOuter>(Expression<Func<TOuter, object>> toColumnSelector, JoinOperator joinOperator, Action<LinkContext<T, TOuter>> configureLink)
+        public QueryContext<T> Join<TOuter>(Expression<Func<TOuter, object>> toColumnSelector, JoinOperator joinOperator, Action<LinkContext<T, TOuter>> configureLink)
             where TOuter : BaseEntity<TOuter>
         {
             var entityName = typeof(TOuter).GetLogicalName();
@@ -216,7 +216,7 @@ namespace DataversePluginTemplate.Queries
             return this;
         }
 
-        internal QueryContext<T> Include<TOuter>(Expression<Func<T, TOuter>> includePropertySelector, Action<IncludeContext<T, TOuter>> configureInclude)
+        public QueryContext<T> Include<TOuter>(Expression<Func<T, TOuter>> includePropertySelector, Action<IncludeContext<T, TOuter>> configureInclude)
            where TOuter : BaseEntity<TOuter>
         {
             return Include<TOuter>(includePropertySelector, JoinOperator.LeftOuter, configureInclude);
@@ -233,7 +233,7 @@ namespace DataversePluginTemplate.Queries
         /// <param name="joinOperator">How dataverse should join the data.</param>
         /// <param name="configureInclude">Configure the included entity</param>
         /// <returns>The same QueryContext for chaining.</returns>
-        internal QueryContext<T> Include<TOuter>(Expression<Func<T, TOuter>> includePropertySelector, JoinOperator joinOperator, Action<IncludeContext<T, TOuter>> configureInclude)
+        public QueryContext<T> Include<TOuter>(Expression<Func<T, TOuter>> includePropertySelector, JoinOperator joinOperator, Action<IncludeContext<T, TOuter>> configureInclude)
             where TOuter : BaseEntity<TOuter>
         {
             var entityName = typeof(TOuter).GetLogicalName();
@@ -257,7 +257,7 @@ namespace DataversePluginTemplate.Queries
         /// Makes the call to dataverse to retrieve the entities and convert them into your instances.
         /// </summary>
         /// <returns>The entites as your type.</returns>
-        internal IEnumerable<T> Execute()
+        public IEnumerable<T> Execute()
         {
             var queryResults = _orgService.RetrieveMultiple(_expression).As<T>();
 

@@ -6,7 +6,7 @@ namespace DataversePluginTemplate.Service.Notification
     /// <summary>
     /// For sending dataverse notifications. Use the <see cref="Create"/> method to get started.
     /// </summary>
-    internal sealed class Notification
+    public sealed class Notification
     {
         private const string SYSTEMUSER_LOGICALNAME = "systemuser";
         private const string NOTIFICATIONID = "NotificationId";

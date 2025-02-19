@@ -1,6 +1,6 @@
 ﻿namespace DataversePluginTemplate.Service
 {
-    internal enum PluginExecutionMode
+    public enum PluginExecutionMode
     {
         Synchronous = 0,
         Asynchronous = 1,

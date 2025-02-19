@@ -1,6 +1,6 @@
 ﻿namespace DataversePluginTemplate.Service
 {
-    internal enum PluginStage
+    public enum PluginStage
     {
         PreValidation = 10,
         PreOperation = 20,

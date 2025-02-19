@@ -3,7 +3,7 @@ using System;
 
 namespace DataversePluginTemplate.Service.API
 {
-    internal class APIException : Exception
+    public class APIException : Exception
     {
         public PluginHttpStatusCode StatusCode { get; set; } = PluginHttpStatusCode.InternalServerError;
 

@@ -1,6 +1,6 @@
 ﻿namespace DataversePluginTemplate.Service.Notification
 {
-    internal enum NotificationIcon
+    public enum NotificationIcon
     {
         Info = 100000000,
         Success = 100000001,

@@ -6,7 +6,7 @@ namespace DataversePluginTemplate.Service.API
     /// Used for properties of <see cref="BaseInputModel{TInput}"/> which allows mapping
     /// values of the plugins InputParameters onto the properties of the instance.
     /// </summary>
-    internal class APIParameterAttribute : Attribute
+    public class APIParameterAttribute : Attribute
     {
         public string Name { get; private set; }
         public ParameterType InputType { get; private set; }

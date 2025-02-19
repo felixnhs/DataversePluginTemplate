@@ -14,17 +14,17 @@ namespace DataversePluginTemplate.Service
     {
         private readonly IServiceProvider _serviceProvider;
 
-        internal IPluginExecutionContext ExecutionContext { get; }
-        internal ITracingService TracingService { get; }
-        internal IServiceEndpointNotificationService NotificationService { get; }
-        internal ILogger Logger { get; }
-        internal IOrganizationService PluginUserService { get; }
-        internal IOrganizationService OrgService => PluginUserService;
-        internal IOrganizationService InitiatinUserService { get; }
-        internal PluginStage PluginStage { get; }
-        internal PluginExecutionMode ExecutionMode { get; }
+        public IPluginExecutionContext ExecutionContext { get; }
+        public ITracingService TracingService { get; }
+        public IServiceEndpointNotificationService NotificationService { get; }
+        public ILogger Logger { get; }
+        public IOrganizationService PluginUserService { get; }
+        public IOrganizationService OrgService => PluginUserService;
+        public IOrganizationService InitiatinUserService { get; }
+        public PluginStage PluginStage { get; }
+        public PluginExecutionMode ExecutionMode { get; }
 
-        internal PluginContext(IServiceProvider serviceProvider)
+        public PluginContext(IServiceProvider serviceProvider)
         {
             if (serviceProvider == null)
                 throw new InvalidPluginExecutionException(nameof(serviceProvider));
@@ -42,14 +42,14 @@ namespace DataversePluginTemplate.Service
             ExecutionMode = (PluginExecutionMode)ExecutionContext.Mode;
         }
 
-        internal PluginContext(IServiceProvider serviceProvider, Action<PluginContext> configureContext)
+        public PluginContext(IServiceProvider serviceProvider, Action<PluginContext> configureContext)
             : this(serviceProvider)
         {
             configureContext?.Invoke(this);
         }
 
 #if DEBUG
-        internal void DebugLog()
+        public void DebugLog()
         {
             TracingService.DebugLogSeparator("Plugin Context");
             TracingService.DebugLog(Environment.NewLine + GetContextLogStr(ExecutionContext));

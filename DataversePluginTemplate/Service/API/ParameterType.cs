@@ -1,6 +1,6 @@
 ﻿namespace DataversePluginTemplate.Service.API
 {
-    internal enum ParameterType
+    public enum ParameterType
     {
         Guid,
         String,
